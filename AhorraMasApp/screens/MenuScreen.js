@@ -23,7 +23,7 @@ export default function MenuScreen() {
 
       <View style={styles.container2}>
         
-        <Text  style={styles.texto2}>Menu Practicas:</Text>
+        <Text  style={styles.texto2}>Menu AhorraMasApp:</Text>
         <View style={styles.contenedorBotones2}>
        <Button color="#FFB86A" onPress={()=>setScreen('IniciarSesion')} title='Screen Iniciar sesión'/>
         <Button color="#FFB86A" onPress={()=>setScreen('Registrar')} title='Screen Registrar'/>
