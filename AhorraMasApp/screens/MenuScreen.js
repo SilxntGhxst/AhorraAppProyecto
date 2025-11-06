@@ -13,6 +13,7 @@ import IniciarSesionScreen from "./IniciarSesionScreen";
 import RegistrarScreen from "./RegistrarScreen";
 import TransactionsScreen from "./TransactionsScreen";
 import MonthlyBudgetsScreen from "./MonthlyBudgetsScreen";
+import GraficasEstadisticasScreen from "./GraficasEstadisticasScreen";
 // import TuOtraScreen from './TuOtraScreen';
 
 export default function MenuScreen() {
@@ -30,6 +31,8 @@ export default function MenuScreen() {
 
     case "Presupuestos":
       return <MonthlyBudgetsScreen />;
+    case"Graficas":
+     return <GraficasEstadisticasScreen/>
 
     // AÑADE MÁS CASES AQUÍ SEGÚN NECESITES
     // case 'TuOtraScreen':
@@ -110,6 +113,16 @@ export default function MenuScreen() {
                     <Text style={styles.buttonIconText}>🎯</Text>
                   </View>
                   <Text style={styles.buttonText}>Presupuestos Mensuales</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.menuButton}
+                  onPress={() => setScreen('Graficas')}
+                >
+                  <View style={styles.buttonIcon}>
+                    <Text style={styles.buttonIconText}>🏠</Text>
+                  </View>
+                  <Text style={styles.buttonText}>Graficas y Estadisticas</Text>
                 </TouchableOpacity>
 
                 {/* AÑADE MÁS BOTONES AQUÍ */}
