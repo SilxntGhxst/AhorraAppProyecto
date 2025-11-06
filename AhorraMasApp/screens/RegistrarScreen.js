@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, SafeAreaView, ImageBackground, TextInput, TouchableOpacity, Alert, Image,} from 'react-native';
+import { Text, StyleSheet, View, SafeAreaView, ImageBackground, TextInput, TouchableOpacity, Alert, Image, Switch} from 'react-native';
 
 export default function RegistrarScreen() {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
+  const [isAccepted, setIsAccepted] = useState(false);
 
   const iniciarSesion = () => {
 
+
+        if(nombre.trim() === ''){
+        
+          Alert.alert("Error  Por favor Ingresa un Nombre");
+          alert("Error  Por favor Ingresa un Nombre");
+          
+          return;
+        }
         if(correo.trim() === ''){
         
           Alert.alert("Error  Por favor Ingresa un Correo");
@@ -18,8 +27,15 @@ export default function RegistrarScreen() {
         }
          if(contrasena.trim() === ''){
         
-          Alert.alert("Error  Por favor Ingresa tu Contraseña");
-          alert("Error  Por favor Ingresa tu Contraseña");
+          Alert.alert("Error  Por favor Ingresa una Contraseña");
+          alert("Error  Por favor Ingresa una Contraseña");
+          
+          return;
+        }
+          if(telefono.trim() === ''){
+        
+          Alert.alert("Error  Por favor Ingresa un número  de telefono");
+          alert("Error  Por favor Ingresa un número  de telefono");
           
           return;
         }
@@ -28,17 +44,24 @@ export default function RegistrarScreen() {
            alert("'Por favor, Ingresa una dirección de correo válida");
            Alert.alert("Por favor, Ingresa una dirección de correo válida");
            return;
-
-        }else{
-
-         alert("BIENVENIDO");
-           Alert.alert("BIENVENIDO");
-      
+        }
+          if (!isAccepted) {
+           Alert.alert('Error', 'Debes aceptar los términos y condiciones');
+           alert('Error, Debes aceptar los términos y condiciones');
+           return;
+    }else {
+          Alert.alert(`Registro exitoso, Hola: ${nombre}  ,  Tu correo es: ${correo} y tu contraseña: ${contrasena} , con el número de telefono: ${telefono}`);
+          alert(`Registro exitoso, Hola: ${nombre} , Tu correo es: ${correo} y tu contraseña: ${contrasena} ,  con el número de telefono: ${telefono}`);
          
         
           }
-           setCorreo('');
+          setNombre('');
+          setCorreo('');
           setContrasena('');
+          setContrasena('');
+          setTelefono('');
+          setIsAccepted(false);
+
       };
   
 
@@ -103,10 +126,15 @@ export default function RegistrarScreen() {
             onChangeText={setTelefono}
           />
 
-          <TouchableOpacity>
-            <Text style={styles.Contra}>¿Has olvidado tu contraseña?</Text>
-          </TouchableOpacity>
-
+          <Text style={styles.switchLabel}>Aceptar términos y condiciones</Text>
+     <View style={styles.switchContainer}>
+           <Switch
+              value={isAccepted}
+              onValueChange={setIsAccepted}
+              thumbColor={isAccepted ? '#1F7A55' : '#ccc'}
+          />
+           
+        </View>
           <TouchableOpacity
             style={styles.BotonInicio}
             onPress={iniciarSesion}
@@ -116,7 +144,7 @@ export default function RegistrarScreen() {
           </TouchableOpacity>
 
           <Text style={styles.socialText}>----------o-----------</Text>
-          <Text style={styles.socialText}>Iniciar sesión con:</Text>
+          <Text style={styles.socialText}>Registrate con:</Text>
 
           <View style={styles.socialContainer}>
             <TouchableOpacity style={styles.socialIcon}>
@@ -152,7 +180,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CFF6DD',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffffa8',
     width: '85%',
     borderRadius: 20,
     padding: 20,
@@ -189,7 +217,7 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#e8e8e83c',
+    backgroundColor: '#e8e8e833',
     borderRadius: 25,
     marginBottom: 20,
     width: '100%',
@@ -198,7 +226,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 24,
     alignItems: 'center',
-     backgroundColor: '#ffffff',
+     backgroundColor: '#ffffff3d',
 
   },
   tabActive: {
@@ -243,7 +271,7 @@ const styles = StyleSheet.create({
     width: '60%',
   },
   socialIcon: {
-    backgroundColor: '#ffffffff',
+    backgroundColor: '#ffffff54',
     borderRadius: 10,
     padding: 10,
     elevation: 3,
@@ -251,5 +279,15 @@ const styles = StyleSheet.create({
   icono: {
     width: 30,
     height: 30,
+  },
+  switchContainer: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  switchLabel: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#253121ff',
   },
 });
