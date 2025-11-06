@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, SafeAreaView, ImageBackground, TextInput, TouchableOpacity, Alert, Image,} from 'react-native';
+import { Text, StyleSheet, View, SafeAreaView, ImageBackground, TextInput, TouchableOpacity, Alert, Image} from 'react-native';
 
 export default function IniciarSesionScreen() {
   const [correo, setCorreo] = useState('');

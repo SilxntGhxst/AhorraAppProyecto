@@ -1,282 +1,173 @@
-import React, { useState } from "react";
-import {
-  Text,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-} from "react-native";
+import { Text, StyleSheet, View, Button,  Image } from 'react-native'
+import React, { Component, useState } from 'react'
+import IniciarSesionScreen from './IniciarSesionScreen'
+import RegistrarScreen from './RegistrarScreen'
+import EditarPerfilScreens from './EditarPerfilScreens'
+import GraficasEstadisticasScreen from './GraficasEstadisticasScreen'
+import MonthlyBudgetsScreen from './MonthlyBudgetsScreen'
+import PerfilScreen from './PerfilScreen'
+import TransactionsScreen from './TransactionsScreen'
 
-// IMPORTA TUS SCREENS AQUÍ
-import IniciarSesionScreen from "./IniciarSesionScreen";
-import RegistrarScreen from "./RegistrarScreen";
-import TransactionsScreen from "./TransactionsScreen";
-import MonthlyBudgetsScreen from "./MonthlyBudgetsScreen";
-import GraficasEstadisticasScreen from "./GraficasEstadisticasScreen";
-import PerfilScreen from "./PerfilScreen";
-import EditarPerfilScreen from "./EditarPerfilScreen";
+
+
 
 export default function MenuScreen() {
-  const [screen, setScreen] = useState("menu");
 
-  switch (screen) {
-    case "IniciarSesion":
-      return <IniciarSesionScreen />;
+    const[screen, setScreen]=useState('menu')
 
-    case "Registrar":
-      return <RegistrarScreen />;
+    switch(screen){
 
-    case "Transacciones":
-      return <TransactionsScreen />;
+        case 'IniciarSesion': 
+            return <IniciarSesionScreen/>
+        case'Registrar':
+        return <RegistrarScreen/>
+        case 'Perfil':
+          return <PerfilScreen/>
+        case 'EditarPerfil':
+          return <EditarPerfilScreens/>
+        case 'Transacciones':
+          return <TransactionsScreen/>
+        case 'Graficas':
+          return <GraficasEstadisticasScreen/>
+        case 'Mes':
+          return <MonthlyBudgetsScreen/>
+     
+        case 'menu':
+            default:
+            return (
 
-    case "Presupuestos":
-      return <MonthlyBudgetsScreen />;
-    
-    case "Graficas":
-      return <GraficasEstadisticasScreen />;
-    
-    case "Perfil":
-      return <PerfilScreen />;
-    
-    case "EditarPerfil":
-      return <EditarPerfilScreen />;
-
-    default:
-      return (
-        <View style={styles.container}>
-          <StatusBar barStyle="dark-content" backgroundColor="#E8F5F0" />
-
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <View style={styles.logoCircle}>
-                <Text style={styles.logoPlus}>+</Text>
-              </View>
-              <Text style={styles.logoText}>Ahorra +App</Text>
-            </View>
-            <View style={styles.profileButton}>
-              <View style={styles.profileCircle}>
-                <Text style={styles.profileEmoji}>👤</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Content */}
-          <ScrollView
-            style={styles.content}
-            contentContainerStyle={styles.contentContainer}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={styles.titleSection}>
-              <Text style={styles.titleText}>Menú Principal</Text>
-              <Text style={styles.subtitleText}>
-                Selecciona una pantalla para navegar
-              </Text>
-            </View>
-
-            <View style={styles.menuCard}>
-              <Text style={styles.cardTitle}>Navegación de Screens</Text>
-
-              <View style={styles.buttonsContainer}>
-                <TouchableOpacity
-                  style={styles.menuButton}
-                  onPress={() => setScreen("IniciarSesion")}
-                >
-                  <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>🔐</Text>
-                  </View>
-                  <Text style={styles.buttonText}>Iniciar Sesión</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.menuButton}
-                  onPress={() => setScreen("Registrar")}
-                >
-                  <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>📝</Text>
-                  </View>
-                  <Text style={styles.buttonText}>Registrar</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.menuButton}
-                  onPress={() => setScreen("Transacciones")}
-                >
-                  <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>💰</Text>
-                  </View>
-                  <Text style={styles.buttonText}>Transacciones</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.menuButton}
-                  onPress={() => setScreen("Presupuestos")}
-                >
-                  <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>🎯</Text>
-                  </View>
-                  <Text style={styles.buttonText}>Presupuestos Mensuales</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={styles.menuButton}
-                  onPress={() => setScreen('Graficas')}
-                >
-                  <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>📊</Text>
-                  </View>
-                  <Text style={styles.buttonText}>Gráficas y Estadísticas</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={styles.menuButton}
-                  onPress={() => setScreen('Perfil')}
-                >
-                  <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>👤</Text>
-                  </View>
-                  <Text style={styles.buttonText}>Perfil</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={styles.menuButton}
-                  onPress={() => setScreen('EditarPerfil')}
-                >
-                  <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>✏️</Text>
-                  </View>
-                  <Text style={styles.buttonText}>Editar Perfil</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </ScrollView>
+      <View style={styles.container2}>
+        
+         <View style={styles.card}>
+          <View style={styles.iconContainer}>
+        <Image
+          source={require('../assets/piglogo.png')}
+          style={styles.icono}
+           />
         </View>
-      );
-  }
+        <Text  style={styles.texto2}>Ahorra+App</Text>
+        <Text  style={styles.texto3}>Menú Screens </Text>
+        
+
+
+        <View style={styles.contenedorBotones2}>
+        <Button color="#2AA63E" onPress={()=>setScreen('IniciarSesion')} title='Screen Iniciar sesión'/>
+        <Button color="#2AA63E" onPress={()=>setScreen('Registrar')} title='Screen Registrar'/>
+        <Button color="#2AA63E" onPress={()=>setScreen('Perfil')} title='Screen Perfil'/>
+        <Button color="#2AA63E" onPress={()=>setScreen('EditarPerfil')} title='Screen Editar Perfil'/>
+        <Button color="#2AA63E" onPress={()=>setScreen('Transacciones')} title='Screen Transacciones'/>
+        <Button color="#2AA63E" onPress={()=>setScreen('Graficas')} title='Screen Graficas y Estadisticas'/>
+        <Button color="#2AA63E" onPress={()=>setScreen('Mes')} title='Screen Presupuestos Mensuales'/>
+       </View>
+
+        <Text  style={styles.texto4}>Desarrollo de Apps Moviles: </Text>
+        <Text  style={styles.texto5}>Entregable Ahorra+App </Text>
+        <Text  style={styles.texto6}>Equipo: </Text>
+        <Text  style={styles.textoNombres}>Gabriel Valencia Olvera</Text>
+        <Text  style={styles.textoNombres}>Santiago Antonio Meneses Rangel</Text>
+        <Text  style={styles.textoNombres}>Selene Guadalupe Lira Perez</Text>
+        <Text  style={styles.textoNombres}>Israel Esau Rico Ramirez </Text>
+
+       </View>
+       </View>
+    )
+       
+
+    }
+  
+   
 }
 
+
 const styles = StyleSheet.create({
-  container: {
+container2: {
     flex: 1,
-    backgroundColor: "#E8F5F0",
+    backgroundColor: '#d6fae8ff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  header: {
-    backgroundColor: "#E8F5F0",
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 15,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+
+contenedorBotones2:{
+    marginTop:10,
+    
+    gap:15
+
+
   },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    texto2:{
+
+   color:'#2a9752ff',
+    fontSize:25,
+    fontFamily: 'Arial',
+    fontWeight:'bold',
+    textDecorationLine:'underline',
+    marginBottom: 15,
   },
-  logoCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#10B981",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
+  texto3:{
+
+   color:'#000000ff',
+    fontSize:20,
+    fontFamily: 'Arial',
+    fontWeight:'bold',
+    marginBottom: 10,
+   
   },
-  logoPlus: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
+  texto4:{
+
+   color:'#26441aff',
+    fontSize:20,
+    fontFamily: 'Arial',
+    fontWeight:'bold',
+    marginBottom: 50,
+    margin: 25,
+   
   },
-  logoText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#10B981",
+    texto5:{
+
+   color:'#2a502dff',
+    fontSize:17,
+    fontFamily: 'Arial',
+    fontWeight:'bold',
+    marginBottom: 10,
+
   },
-  profileButton: {
-    width: 40,
-    height: 40,
+    texto6:{
+
+   color:'#000000ff',
+    fontSize:15,
+    fontFamily: 'Arial',
+    fontWeight:'bold',
+    marginBottom: 10,
+   
+  },
+    textoNombres:{
+
+   color:'#244222ff',
+    fontSize:20,
+    fontFamily: 'Arial',
+    marginBottom: 1,
+   
+  },
+  icono: {
+    width: 50,
+    height: 50,
+  },
+  iconContainer: {
+    backgroundColor: '#bef3d5ff',
+    padding: 10,
+    borderRadius: 50,
+    marginBottom: 10,
+  },
+    card: {
+    backgroundColor: '#ffffff88',
+    width: '85%',
     borderRadius: 20,
-    backgroundColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  profileCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#10B981",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  profileEmoji: {
-    fontSize: 14,
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  titleSection: {
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
-  titleText: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#1F2937",
-    marginBottom: 8,
-  },
-  subtitleText: {
-    fontSize: 16,
-    color: "#6B7280",
-    lineHeight: 22,
-  },
-  menuCard: {
-    backgroundColor: "white",
-    borderRadius: 12,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1F2937",
-    marginBottom: 20,
-  },
-  buttonsContainer: {
-    gap: 12,
-  },
-  menuButton: {
-    backgroundColor: "#F3F4F6",
-    borderRadius: 10,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  buttonIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  buttonIconText: {
-    fontSize: 24,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
-    flex: 1,
-  },
-});
+  })

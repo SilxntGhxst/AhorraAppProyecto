@@ -4,6 +4,8 @@ import { Text, StyleSheet, View, SafeAreaView, ImageBackground, TextInput, Touch
 export default function RegistrarScreen() {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [telefono, setTelefono] = useState('');
 
   const iniciarSesion = () => {
 
@@ -58,16 +60,25 @@ export default function RegistrarScreen() {
           <Text style={styles.titulo}>Ahorra +App</Text>
           <Text style={styles.subtitulo}>Gestiona tus finanzas personales</Text>
            
-            <Text style={styles.subtitulo}>Aun no tienes cuenta:</Text>
+            <Text style={styles.subtitulo}>Ya tienes una cuenta:</Text>
 
           <View style={styles.tabContainer}>
             
             <TouchableOpacity style={styles.tabRegis}>
-              <Text style={styles.socialText}>Registrate</Text>
+              <Text style={styles.socialText}>Inicia Sesión</Text>
             </TouchableOpacity>
             
           </View>
-          <Text style={styles.subtitulo2}>Inicia Sesión</Text>
+          <Text style={styles.subtitulo2}>Registrarse</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre completo"
+            placeholderTextColor="#999"
+            value={nombre}
+            onChangeText={setNombre}
+          />
+         
 
           <TextInput
             style={styles.input}
@@ -78,11 +89,18 @@ export default function RegistrarScreen() {
           />
           <TextInput
             style={styles.input}
-            placeholder="Contraseña"
+            placeholder="Crea una contraseña"
             placeholderTextColor="#999"
             secureTextEntry
             value={contrasena}
             onChangeText={setContrasena}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Telefono"
+            placeholderTextColor="#999"
+            value={telefono}
+            onChangeText={setTelefono}
           />
 
           <TouchableOpacity>
