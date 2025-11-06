@@ -5,29 +5,33 @@ import { Ionicons } from "@expo/vector-icons";
 export default function GraficasEstadisticasScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      {/* Encabezado */}
+      /* Encabezado */
       <View style={styles.header}>
-        <Text style={styles.logoText}>💰 Ahorra +App</Text>
+                  <Image
+                        source={require('../assets/piglogo.png')}
+                        style={styles.icono}
+                      />
+        <Text style={styles.logoText}> Ahorra +App</Text>
         <View style={styles.profileIcon}>
           <Ionicons name="person-circle-outline" size={32} color="#0D7A43" />
         </View>
       </View>
 
-      {/* Título y descripción */}
+      /* Título y descripción */
       <View style={styles.sectionHeader}>
         <Text style={styles.title}>Gráficas y Estadísticas</Text>
         <Text style={styles.subtitle}>
           Visualiza tus patrones de ingresos y gastos
         </Text>
 
-        {/* Selector de mes */}
+        /* Selector de mes */
         <View style={styles.monthSelector}>
           <Text style={styles.monthText}>Septiembre</Text>
           <Ionicons name="chevron-down" size={18} color="#555" />
         </View>
       </View>
 
-      {/* Pestañas */}
+      /* Pestañas */
       <View style={styles.tabs}>
         <TouchableOpacity style={[styles.tab, styles.tabActive]}>
           <Text style={[styles.tabText, styles.tabTextActive]}>Por Categorías</Text>
@@ -40,9 +44,9 @@ export default function GraficasEstadisticasScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Cuerpo scrollable */}
+      /* Cuerpo scrollable */
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Tarjeta de gastos */}
+        /* Tarjeta de gastos */
         <View style={styles.card}>
           <Text style={styles.cardTitle}>📉 Gastos por Categoría</Text>
           <Text style={styles.cardSubtitle}>
@@ -53,7 +57,7 @@ export default function GraficasEstadisticasScreen() {
           </Text>
         </View>
 
-        {/* Tarjeta de ingresos */}
+        /* Tarjeta de ingresos */
         <View style={styles.card}>
           <Text style={styles.cardTitle}>📈 Ingresos por Categoría</Text>
           <Text style={styles.cardSubtitle}>
@@ -65,7 +69,7 @@ export default function GraficasEstadisticasScreen() {
         </View>
       </ScrollView>
 
-      {/* Barra de navegación inferior */}
+      /* Barra de navegación inferior */
       <View style={styles.bottomNav}>
         <Ionicons name="home-outline" size={24} color="#0D7A43" />
         <Ionicons name="document-text-outline" size={24} color="#0D7A43" />
