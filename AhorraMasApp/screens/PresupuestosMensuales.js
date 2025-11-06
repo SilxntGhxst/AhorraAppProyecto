@@ -5,18 +5,16 @@ import {
   TouchableOpacity,
   StatusBar,
   StyleSheet,
-  ScrollView
+  ScrollView,
+  Image
 } from 'react-native';
 import { 
-  Home, 
-  CreditCard, 
-  BarChart3, 
-  Target,
   ChevronDown,
   Plus
 } from 'lucide-react-native';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
-const MonthlyBudgetsScreen = () => {
+const PresupuestosMensuales = () => {
   const [selectedMonth, setSelectedMonth] = useState('Septiembre');
   const [selectedYear, setSelectedYear] = useState('2025');
 
@@ -27,20 +25,19 @@ const MonthlyBudgetsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#E8F5F0" />
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       
-      {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoPlus}>+</Text>
-          </View>
+        <View style={styles.iconContent}>     
+          <Image
+            source={require('../assets/Puerquito2.jpg')}
+            style={styles.icono}
+          />
           <Text style={styles.logoText}>Ahorra +App</Text>
         </View>
-        <View style={styles.profileButton}>
-          <View style={styles.profileCircle}>
-            <Text style={styles.profileEmoji}>👤</Text>
-          </View>
+        
+        <View style={styles.profileIcon}>
+          <Ionicons name="person-circle-outline" size={32} color="#0D7A43" />
         </View>
       </View>
 
@@ -48,7 +45,7 @@ const MonthlyBudgetsScreen = () => {
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section */}
+        {/* Seccion titulo */}
         <View style={styles.titleSection}>
           <View>
             <Text style={styles.titleText}>Presupuestos</Text>
@@ -62,7 +59,7 @@ const MonthlyBudgetsScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Period Selector Card */}
+        {/* Selector de periodo */}
         <View style={styles.periodCard}>
           <Text style={styles.periodLabel}>Periodo</Text>
           
@@ -79,7 +76,7 @@ const MonthlyBudgetsScreen = () => {
           </View>
         </View>
 
-        {/* Empty State Card */}
+        {/* Card de estado vacio */}
         <View style={styles.emptyStateCard}>
           <View style={styles.emptyIconContainer}>
             <View style={styles.emptyIconCircle}>
@@ -102,23 +99,25 @@ const MonthlyBudgetsScreen = () => {
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton}>
-          <Home size={28} color="#9CA3AF" />
+      <View style={styles.navBar}>
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="home-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.navText}>Inicio</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <CreditCard size={28} color="#9CA3AF" />
+        
+        <TouchableOpacity style={styles.navItem}>
+          <MaterialIcons name="credit-card" size={24} color="#FFFFFF" />
+          <Text style={styles.navText}>Transacciones</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <BarChart3 size={28} color="#9CA3AF" />
+        
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="stats-chart-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.navText}>Estadísticas</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButtonActive}>
-          <View style={styles.activeIconContainer}>
-            <Target size={28} color="#ffffff" />
-          </View>
-          <Text style={styles.activeNavText}>Presupuestos</Text>
-          <Text style={styles.activeNavText}>mensuales</Text>
+        
+        <TouchableOpacity style={styles.navItem}>
+          <MaterialIcons name="account-balance-wallet" size={24} color="#FFFFFF" />
+          <Text style={styles.navText}>Presupuestos</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -128,58 +127,43 @@ const MonthlyBudgetsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E8F5F0',
+    backgroundColor: '#E8F3EC',
   },
-  header: {
-    backgroundColor: '#E8F5F0',
+  // HEADER - Igual que PerfilScreen
+  header: { 
+    backgroundColor: '#FFFFFF',
     paddingTop: 50,
-    paddingHorizontal: 20,
     paddingBottom: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  headerLeft: {
+  iconContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
+    flex: 1,
   },
-  logoCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#10B981',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8,
+  icono: {
+    width: 35,
+    height: 35,
+    marginRight: 10,
   },
-  logoPlus: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+  logoText: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: '#0D7A43',
   },
-  logoText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#10B981',
-  },
-  profileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#10B981',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileEmoji: {
-    fontSize: 14,
+  profileIcon: {
+    // El ícono de perfil se alinea a la derecha automáticamente
   },
   content: {
     flex: 1,
@@ -309,39 +293,32 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   bottomSpacer: {
-    height: 40,
+    height: 80,
   },
-  bottomNav: {
-    backgroundColor: '#1F2937',
+  navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'flex-end',
-    paddingVertical: 12,
-    paddingBottom: 20,
+    backgroundColor: '#2FB16B',
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderTopWidth: 0,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
   },
-  navButton: {
+  navItem: {
     alignItems: 'center',
-    padding: 8,
-  },
-  navButtonActive: {
-    alignItems: 'center',
-    padding: 8,
-  },
-  activeIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#475569',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 4,
+    flex: 1,
   },
-  activeNavText: {
-    color: '#ffffff',
-    fontSize: 11,
+  navText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    marginTop: 4,
     fontWeight: '500',
-    textAlign: 'center',
   },
 });
 
-export default MonthlyBudgetsScreen;
+export default PresupuestosMensuales;

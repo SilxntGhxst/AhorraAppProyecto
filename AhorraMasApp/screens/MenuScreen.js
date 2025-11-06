@@ -4,7 +4,7 @@ import IniciarSesionScreen from './IniciarSesionScreen'
 import RegistrarScreen from './RegistrarScreen'
 import EditarPerfilScreens from './EditarPerfilScreens'
 import GraficasEstadisticasScreen from './GraficasEstadisticasScreen'
-import MonthlyBudgetsScreen from './MonthlyBudgetsScreen'
+import PresupuestosMensuales from './PresupuestosMensuales'
 import PerfilScreen from './PerfilScreen'
 import TransactionsScreen from './TransactionsScreen'
 
@@ -30,7 +30,7 @@ export default function MenuScreen() {
         case 'Graficas':
           return <GraficasEstadisticasScreen/>
         case 'Mes':
-          return <MonthlyBudgetsScreen/>
+          return <PresupuestosMensuales/>
      
         case 'menu':
             default:
