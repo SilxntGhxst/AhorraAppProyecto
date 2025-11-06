@@ -1,18 +1,20 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image, StatusBar } from "react-native";
 import { Ionicons,MaterialIcons } from "@expo/vector-icons";
 
 export default function GraficasEstadisticasScreen() {
   return (
     <SafeAreaView style={styles.container}>
 
+     <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
+      
       <View style={styles.header}>
         <View style={styles.iconContent}>     
           <Image
-                source={require('../assets/piglogo.png')}
-                style={styles.icono}
-              />
-            <Text style={styles.logoText}> Ahorra +App</Text>
+            source={require('../assets/Puerquito2.jpg')}
+            style={styles.icono}
+          />
+          <Text style={styles.logoText}>Ahorra +App</Text>
         </View>
         
         <View style={styles.profileIcon}>
@@ -93,28 +95,43 @@ export default function GraficasEstadisticasScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1, 
+    backgroundColor: '#E8F3EC' 
+  },
+  header: { 
+    backgroundColor: '#FFFFFF',
+    paddingTop: 50,
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  iconContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
     flex: 1,
-    backgroundColor: "#E8F8EE",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 10,
+  icono: {
+    width: 35,
+    height: 35,
+    marginRight: 10,
   },
-  logoText: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#0D7A43",
+  logoText: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: '#0D7A43', // VERDE como en tu imagen
   },
   profileIcon: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 4,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    // El ícono de perfil se alinea a la derecha automáticamente
   },
   sectionHeader: {
     paddingHorizontal: 16,
