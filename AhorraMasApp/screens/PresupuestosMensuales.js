@@ -10,18 +10,67 @@ import {
 } from 'react-native';
 import { 
   ChevronDown,
-  Plus
+  Plus,
+  Edit2,
+  Trash2
 } from 'lucide-react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 const PresupuestosMensuales = () => {
   const [selectedMonth, setSelectedMonth] = useState('Septiembre');
   const [selectedYear, setSelectedYear] = useState('2025');
+  const [showEmpty, setShowEmpty] = useState(false);
 
   const months = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
+
+  const budgets = [
+    {
+      id: 1,
+      category: 'Alimentación',
+      icon: '🍔',
+      limit: 8000,
+      spent: 5200,
+      color: '#10B981',
+    },
+    {
+      id: 2,
+      category: 'Transporte',
+      icon: '🚗',
+      limit: 3000,
+      spent: 2850,
+      color: '#3B82F6',
+    },
+    {
+      id: 3,
+      category: 'Entretenimiento',
+      icon: '🎬',
+      limit: 2500,
+      spent: 2800,
+      color: '#F59E0B',
+    },
+    {
+      id: 4,
+      category: 'Servicios',
+      icon: '💡',
+      limit: 4000,
+      spent: 3500,
+      color: '#8B5CF6',
+    },
+  ];
+
+  const calculatePercentage = (spent, limit) => {
+    return Math.min((spent / limit) * 100, 100);
+  };
+
+  const getStatusColor = (spent, limit) => {
+    const percentage = (spent / limit) * 100;
+    if (percentage >= 100) return '#EF4444';
+    if (percentage >= 80) return '#F59E0B';
+    return '#10B981';
+  };
 
   return (
     <View style={styles.container}>
@@ -45,7 +94,7 @@ const PresupuestosMensuales = () => {
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Seccion titulo */}
+        {/* Sección título */}
         <View style={styles.titleSection}>
           <View>
             <Text style={styles.titleText}>Presupuestos</Text>
@@ -76,25 +125,115 @@ const PresupuestosMensuales = () => {
           </View>
         </View>
 
-        {/* Card de estado vacio */}
-        <View style={styles.emptyStateCard}>
-          <View style={styles.emptyIconContainer}>
-            <View style={styles.emptyIconCircle}>
-              <View style={styles.logoCircleSmall}>
-                <Text style={styles.logoPlusSmall}>+</Text>
-              </View>
+        {/* Resumen General */}
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryTitle}>Resumen General</Text>
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>Total Presupuestado</Text>
+              <Text style={styles.summaryAmount}>$17,500.00</Text>
+            </View>
+            <View style={styles.summaryDivider} />
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>Total Gastado</Text>
+              <Text style={[styles.summaryAmount, { color: '#EF4444' }]}>$14,350.00</Text>
             </View>
           </View>
-          
-          <Text style={styles.emptyStateText}>
-            No tienes presupuestos configurados{'\n'}para Septiembre 2025
-          </Text>
-          
-          <TouchableOpacity style={styles.createButton}>
-            <Plus size={20} color="white" />
-            <Text style={styles.createButtonText}>Crear Primer Presupuesto</Text>
-          </TouchableOpacity>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBar, { width: '82%' }]} />
+          </View>
+          <Text style={styles.progressText}>82% del presupuesto total utilizado</Text>
         </View>
+
+        {/* Lista de Presupuestos */}
+        {showEmpty ? (
+          <View style={styles.emptyStateCard}>
+            <View style={styles.emptyIconContainer}>
+              <View style={styles.emptyIconCircle}>
+                <View style={styles.logoCircleSmall}>
+                  <Text style={styles.logoPlusSmall}>+</Text>
+                </View>
+              </View>
+            </View>
+            
+            <Text style={styles.emptyStateText}>
+              No tienes presupuestos configurados{'\n'}para Septiembre 2025
+            </Text>
+            
+            <TouchableOpacity style={styles.createButton}>
+              <Plus size={20} color="white" />
+              <Text style={styles.createButtonText}>Crear Primer Presupuesto</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            {budgets.map((budget) => {
+              const percentage = calculatePercentage(budget.spent, budget.limit);
+              const statusColor = getStatusColor(budget.spent, budget.limit);
+              const remaining = budget.limit - budget.spent;
+
+              return (
+                <View key={budget.id} style={styles.budgetCard}>
+                  <View style={styles.budgetHeader}>
+                    <View style={styles.budgetLeft}>
+                      <View style={[styles.categoryIcon, { backgroundColor: budget.color + '20' }]}>
+                        <Text style={styles.categoryEmoji}>{budget.icon}</Text>
+                      </View>
+                      <View style={styles.budgetInfo}>
+                        <Text style={styles.categoryName}>{budget.category}</Text>
+                        <Text style={styles.budgetSubtext}>
+                          ${budget.spent.toLocaleString('es-MX', { minimumFractionDigits: 2 })} de ${budget.limit.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        </Text>
+                      </View>
+                    </View>
+                    
+                    <View style={styles.budgetActions}>
+                      <TouchableOpacity style={styles.actionButton}>
+                        <Edit2 size={20} color="#6B7280" />
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.actionButton}>
+                        <Trash2 size={20} color="#EF4444" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  <View style={styles.budgetProgressContainer}>
+                    <View style={styles.budgetProgressBar}>
+                      <View 
+                        style={[
+                          styles.budgetProgress, 
+                          { 
+                            width: `${percentage}%`,
+                            backgroundColor: statusColor 
+                          }
+                        ]} 
+                      />
+                    </View>
+                    <Text style={[styles.percentageText, { color: statusColor }]}>
+                      {percentage.toFixed(0)}%
+                    </Text>
+                  </View>
+
+                  <View style={styles.budgetFooter}>
+                    {remaining >= 0 ? (
+                      <Text style={styles.remainingText}>
+                        Disponible: <Text style={{ color: '#10B981', fontWeight: '600' }}>
+                          ${remaining.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        </Text>
+                      </Text>
+                    ) : (
+                      <Text style={styles.remainingText}>
+                        Excedido: <Text style={{ color: '#EF4444', fontWeight: '600' }}>
+                          ${Math.abs(remaining).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        </Text>
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
+          </>
+        )}
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
@@ -129,7 +268,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#E8F3EC',
   },
-  // HEADER - Igual que PerfilScreen
   header: { 
     backgroundColor: '#FFFFFF',
     paddingTop: 50,
@@ -162,9 +300,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', 
     color: '#0D7A43',
   },
-  profileIcon: {
-    // El ícono de perfil se alinea a la derecha automáticamente
-  },
+  profileIcon: {},
   content: {
     flex: 1,
     paddingHorizontal: 20,
@@ -235,6 +371,148 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     color: '#1F2937',
+  },
+  summaryCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  summaryTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 16,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  summaryItem: {
+    flex: 1,
+  },
+  summaryDivider: {
+    width: 1,
+    backgroundColor: '#E5E7EB',
+    marginHorizontal: 16,
+  },
+  summaryLabel: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  summaryAmount: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1F2937',
+  },
+  progressBarContainer: {
+    height: 8,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#10B981',
+    borderRadius: 4,
+  },
+  progressText: {
+    fontSize: 13,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  budgetCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  budgetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  budgetLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  categoryIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  categoryEmoji: {
+    fontSize: 24,
+  },
+  budgetInfo: {
+    flex: 1,
+  },
+  categoryName: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 4,
+  },
+  budgetSubtext: {
+    fontSize: 13,
+    color: '#6B7280',
+  },
+  budgetActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    marginLeft: 8,
+  },
+  budgetProgressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  budgetProgressBar: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginRight: 12,
+  },
+  budgetProgress: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  percentageText: {
+    fontSize: 14,
+    fontWeight: '600',
+    minWidth: 45,
+    textAlign: 'right',
+  },
+  budgetFooter: {
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  remainingText: {
+    fontSize: 14,
+    color: '#6B7280',
   },
   emptyStateCard: {
     backgroundColor: 'white',
