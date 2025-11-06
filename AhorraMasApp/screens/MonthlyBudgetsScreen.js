@@ -1,0 +1,347 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StatusBar,
+  StyleSheet,
+  ScrollView
+} from 'react-native';
+import { 
+  Home, 
+  CreditCard, 
+  BarChart3, 
+  Target,
+  ChevronDown,
+  Plus
+} from 'lucide-react-native';
+
+const MonthlyBudgetsScreen = () => {
+  const [selectedMonth, setSelectedMonth] = useState('Septiembre');
+  const [selectedYear, setSelectedYear] = useState('2025');
+
+  const months = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#E8F5F0" />
+      
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View style={styles.logoCircle}>
+            <Text style={styles.logoPlus}>+</Text>
+          </View>
+          <Text style={styles.logoText}>Ahorra +App</Text>
+        </View>
+        <View style={styles.profileButton}>
+          <View style={styles.profileCircle}>
+            <Text style={styles.profileEmoji}>👤</Text>
+          </View>
+        </View>
+      </View>
+
+      <ScrollView 
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Title Section */}
+        <View style={styles.titleSection}>
+          <View>
+            <Text style={styles.titleText}>Presupuestos</Text>
+            <Text style={styles.titleText}>Mensuales</Text>
+            <Text style={styles.subtitleText}>
+              Gestiona tus límites de gasto{'\n'}por categoría
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.newBudgetButton}>
+            <Text style={styles.newBudgetText}>Nuevo Presupuesto</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Period Selector Card */}
+        <View style={styles.periodCard}>
+          <Text style={styles.periodLabel}>Periodo</Text>
+          
+          <View style={styles.selectorsRow}>
+            <TouchableOpacity style={styles.selector}>
+              <Text style={styles.selectorText}>{selectedMonth}</Text>
+              <ChevronDown size={20} color="#1F2937" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.selector}>
+              <Text style={styles.selectorText}>{selectedYear}</Text>
+              <ChevronDown size={20} color="#1F2937" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Empty State Card */}
+        <View style={styles.emptyStateCard}>
+          <View style={styles.emptyIconContainer}>
+            <View style={styles.emptyIconCircle}>
+              <View style={styles.logoCircleSmall}>
+                <Text style={styles.logoPlusSmall}>+</Text>
+              </View>
+            </View>
+          </View>
+          
+          <Text style={styles.emptyStateText}>
+            No tienes presupuestos configurados{'\n'}para Septiembre 2025
+          </Text>
+          
+          <TouchableOpacity style={styles.createButton}>
+            <Plus size={20} color="white" />
+            <Text style={styles.createButtonText}>Crear Primer Presupuesto</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.bottomSpacer} />
+      </ScrollView>
+
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navButton}>
+          <Home size={28} color="#9CA3AF" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton}>
+          <CreditCard size={28} color="#9CA3AF" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton}>
+          <BarChart3 size={28} color="#9CA3AF" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButtonActive}>
+          <View style={styles.activeIconContainer}>
+            <Target size={28} color="#ffffff" />
+          </View>
+          <Text style={styles.activeNavText}>Presupuestos</Text>
+          <Text style={styles.activeNavText}>mensuales</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#E8F5F0',
+  },
+  header: {
+    backgroundColor: '#E8F5F0',
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  logoPlus: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  logoText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#10B981',
+  },
+  profileButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileEmoji: {
+    fontSize: 14,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  titleSection: {
+    paddingTop: 20,
+    paddingBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  titleText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1F2937',
+    lineHeight: 34,
+  },
+  subtitleText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 8,
+    lineHeight: 20,
+  },
+  newBudgetButton: {
+    backgroundColor: '#475569',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 5,
+  },
+  newBudgetText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  periodCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  periodLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 16,
+  },
+  selectorsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  selector: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  selectorText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#1F2937',
+  },
+  emptyStateCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 32,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  emptyIconContainer: {
+    marginBottom: 20,
+  },
+  emptyIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoCircleSmall: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoPlusSmall: {
+    color: 'white',
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  emptyStateText: {
+    fontSize: 15,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  createButton: {
+    backgroundColor: '#475569',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    gap: 8,
+  },
+  createButtonText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  bottomSpacer: {
+    height: 40,
+  },
+  bottomNav: {
+    backgroundColor: '#1F2937',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+    paddingVertical: 12,
+    paddingBottom: 20,
+  },
+  navButton: {
+    alignItems: 'center',
+    padding: 8,
+  },
+  navButtonActive: {
+    alignItems: 'center',
+    padding: 8,
+  },
+  activeIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#475569',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  activeNavText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+});
+
+export default MonthlyBudgetsScreen;
