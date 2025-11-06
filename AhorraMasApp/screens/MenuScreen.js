@@ -14,7 +14,8 @@ import RegistrarScreen from "./RegistrarScreen";
 import TransactionsScreen from "./TransactionsScreen";
 import MonthlyBudgetsScreen from "./MonthlyBudgetsScreen";
 import GraficasEstadisticasScreen from "./GraficasEstadisticasScreen";
-// import TuOtraScreen from './TuOtraScreen';
+import PerfilScreen from "./PerfilScreen";
+import EditarPerfilScreen from "./EditarPerfilScreen";
 
 export default function MenuScreen() {
   const [screen, setScreen] = useState("menu");
@@ -31,12 +32,15 @@ export default function MenuScreen() {
 
     case "Presupuestos":
       return <MonthlyBudgetsScreen />;
-    case"Graficas":
-     return <GraficasEstadisticasScreen/>
-
-    // AÑADE MÁS CASES AQUÍ SEGÚN NECESITES
-    // case 'TuOtraScreen':
-    //   return <TuOtraScreen />;
+    
+    case "Graficas":
+      return <GraficasEstadisticasScreen />;
+    
+    case "Perfil":
+      return <PerfilScreen />;
+    
+    case "EditarPerfil":
+      return <EditarPerfilScreen />;
 
     default:
       return (
@@ -120,23 +124,29 @@ export default function MenuScreen() {
                   onPress={() => setScreen('Graficas')}
                 >
                   <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>🏠</Text>
+                    <Text style={styles.buttonIconText}>📊</Text>
                   </View>
-                  <Text style={styles.buttonText}>Graficas y Estadisticas</Text>
+                  <Text style={styles.buttonText}>Gráficas y Estadísticas</Text>
                 </TouchableOpacity>
-
-                {/* AÑADE MÁS BOTONES AQUÍ */}
-                {/* 
                 <TouchableOpacity 
                   style={styles.menuButton}
-                  onPress={() => setScreen('TuOtraScreen')}
+                  onPress={() => setScreen('Perfil')}
                 >
                   <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>🏠</Text>
+                    <Text style={styles.buttonIconText}>👤</Text>
                   </View>
-                  <Text style={styles.buttonText}>Tu Otra Screen</Text>
+                  <Text style={styles.buttonText}>Perfil</Text>
                 </TouchableOpacity>
-                */}
+
+                <TouchableOpacity 
+                  style={styles.menuButton}
+                  onPress={() => setScreen('EditarPerfil')}
+                >
+                  <View style={styles.buttonIcon}>
+                    <Text style={styles.buttonIconText}>✏️</Text>
+                  </View>
+                  <Text style={styles.buttonText}>Editar Perfil</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </ScrollView>
