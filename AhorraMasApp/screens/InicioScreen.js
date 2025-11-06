@@ -22,7 +22,7 @@ export default function AhorraAppScreen() {
           <Ionicons name="person-circle-outline" size={32} color="#0D7A43" />
         </View>
       </View>
-
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           <View style={styles.cardRow}>
             <Text style={styles.cardTitle}>Ingresos del mes</Text>
@@ -101,6 +101,8 @@ export default function AhorraAppScreen() {
           </View>
         </View>
       </ScrollView>
+      </ScrollView>
+
 
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navItem}>
@@ -131,6 +133,14 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#E9F9F0',
+  },
+   scroll: { 
+    flex: 1,
+  },
+    scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 80,
+    paddingTop: 20,
   },
   container: {
     flex: 1, 
