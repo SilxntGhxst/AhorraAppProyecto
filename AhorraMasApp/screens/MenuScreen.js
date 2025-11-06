@@ -2,7 +2,8 @@ import { Text, StyleSheet, View, Button } from 'react-native'
 import React, { Component, useState } from 'react'
 import IniciarSesionScreen from './IniciarSesionScreen'
 import RegistrarScreen from './RegistrarScreen'
-
+import TransactionsScreen from './TransactionsScreen'
+import MonthlyBudgetsScreen from './MonthlyBudgetsScreen'
 
 
 
@@ -16,6 +17,7 @@ export default function MenuScreen() {
             return <IniciarSesionScreen/>
         case'Registrar':
         return <RegistrarScreen/>
+        case
      
         case 'menu':
             default:
