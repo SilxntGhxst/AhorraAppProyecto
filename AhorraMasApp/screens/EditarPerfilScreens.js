@@ -1,18 +1,44 @@
 // Screens/EditarPerfilScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Switch, ScrollView } from 'react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Switch, ScrollView, StatusBar, Image } from 'react-native';
+import { Ionicons, MaterialIcons, Feather, FontAwesome } from '@expo/vector-icons';
 
-export default function EditarPerfilScreens({ onSave, onCancel }) {
+export default function EditarPerfilScreen({ navigation, onSave, onCancel }) {
+  // Funciones por defecto si no se pasan como props
+  const handleSave = onSave || (() => {
+    console.log('Guardando cambios...');
+    navigation.goBack();
+  });
+
+  const handleCancel = onCancel || (() => {
+    console.log('Cancelando...');
+    navigation.goBack();
+  });
+
   return (
     <View style={styles.container}>
-      {/* Header */}
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
+      
+      {/* Header CORREGIDO */}
       <View style={styles.header}>
-        <Text style={styles.logo}>Ahorra +App</Text>
-        <Ionicons name="person" size={24} color="#1B3C2A" />
+        <View style={styles.iconContent}>     
+          <Image
+            source={require('../assets/Puerquito2.jpg')}
+            style={styles.icono}
+          />
+          <Text style={styles.logoText}>Ahorra +App</Text>
+        </View>
+        
+        <View style={styles.profileIcon}>
+          <Ionicons name="person-circle-outline" size={32} color="#0D7A43" />
+        </View>
       </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        style={styles.scroll} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Título principal */}
         <Text style={styles.mainTitle}>Editar perfil</Text>
 
@@ -37,10 +63,10 @@ export default function EditarPerfilScreens({ onSave, onCancel }) {
           </View>
 
           <View style={styles.editButtons}>
-            <TouchableOpacity style={styles.saveButton} onPress={onSave}>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveText}>Guardar cambios</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+            <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
               <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
@@ -154,14 +180,17 @@ export default function EditarPerfilScreens({ onSave, onCancel }) {
           <Text style={styles.sectionSubtitle}>Obtén ayuda cuando lo necesites</Text>
           
           <TouchableOpacity style={styles.helpRow}>
+            <MaterialIcons name="help-outline" size={20} color="#1B3C2A" />
             <Text style={styles.helpText}>Centro de Ayuda</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.helpRow}>
+            <Feather name="message-square" size={20} color="#1B3C2A" />
             <Text style={styles.helpText}>Enviar feedback</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.helpRow}>
+            <FontAwesome name="star-o" size={20} color="#1B3C2A" />
             <Text style={styles.helpText}>Calificar la App</Text>
           </TouchableOpacity>
 
@@ -177,22 +206,25 @@ export default function EditarPerfilScreens({ onSave, onCancel }) {
         <TouchableOpacity style={styles.logoutButton}>
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>
+
+        {/* Espacio extra para la barra de navegación */}
+        <View style={styles.bottomSpacer} />
       </ScrollView>
 
       {/* Navigation Bar - Verde */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home" size={24} color="#FFFFFF" />
-          <Text style={styles.navText}>Casita</Text>
+          <Ionicons name="home-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.navText}>Inicio</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
           <MaterialIcons name="credit-card" size={24} color="#FFFFFF" />
-          <Text style={styles.navText}>Targeta</Text>
+          <Text style={styles.navText}>Transacciones</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="stats-chart" size={24} color="#FFFFFF" />
+          <Ionicons name="stats-chart-outline" size={24} color="#FFFFFF" />
           <Text style={styles.navText}>Estadísticas</Text>
         </TouchableOpacity>
         
@@ -210,31 +242,55 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: '#E8F3EC' 
   },
+  // HEADER CORREGIDO
   header: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    padding: 20,
+    backgroundColor: '#FFFFFF',
     paddingTop: 50,
-    backgroundColor: '#E8F3EC',
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  logo: { 
-    fontSize: 18, 
+  iconContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    flex: 1,
+  },
+  icono: {
+    width: 35,
+    height: 35,
+    marginRight: 10,
+  },
+  logoText: { 
+    fontSize: 20, 
     fontWeight: 'bold', 
-    color: '#1B3C2A' 
+    color: '#0D7A43',
+  },
+  profileIcon: {
+    // El ícono de perfil se alinea a la derecha automáticamente
   },
   scroll: { 
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 100, // Más espacio para la barra de navegación
+    paddingTop: 10,
   },
   mainTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1B3C2A',
-    marginBottom: 20,
+    marginBottom: 8,
     marginTop: 10,
   },
   card: {
@@ -378,6 +434,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   helpRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
@@ -385,6 +443,7 @@ const styles = StyleSheet.create({
   helpText: {
     fontSize: 16,
     color: '#333',
+    marginLeft: 10,
   },
   appInfo: {
     fontSize: 16,
@@ -412,13 +471,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  bottomSpacer: {
+    height: 20,
+  },
   // Navigation Bar Styles - Verde
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     backgroundColor: '#2FB16B',
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 10,
+    borderTopWidth: 0,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
   },
   navItem: {
     alignItems: 'center',
@@ -429,5 +497,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#FFFFFF',
     marginTop: 4,
+    fontWeight: '500',
   },
 });

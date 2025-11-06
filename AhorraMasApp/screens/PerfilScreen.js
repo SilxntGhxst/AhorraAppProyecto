@@ -1,16 +1,26 @@
 // Screens/PerfilScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, StatusBar, Image } from 'react-native';
 import { Ionicons, MaterialIcons, FontAwesome, Feather } from '@expo/vector-icons';
 
 export default function PerfilScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#2FB16B" barStyle="light-content" />
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       
-      {/* Header */}
+   
       <View style={styles.header}>
-        <Text style={styles.logo}>Ahorra + App</Text>
+        <View style={styles.iconContent}>     
+          <Image
+            source={require('../assets/Puerquito2.jpg')}
+            style={styles.icono}
+          />
+          <Text style={styles.logoText}>Ahorra +App</Text>
+        </View>
+        
+        <View style={styles.profileIcon}>
+          <Ionicons name="person-circle-outline" size={32} color="#0D7A43" />
+        </View>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
@@ -18,7 +28,7 @@ export default function PerfilScreen({ navigation }) {
         <Text style={styles.mainTitle}>Mi perfil</Text>
         <Text style={styles.sectionSubtitle}>Gestiona tu información personal</Text>
 
-        {/* Información del usuario */}
+        {/* Resto del código permanece igual */}
         <View style={styles.card}>
           <View style={styles.userInfoSection}>
             <View style={styles.avatarContainer}>
@@ -31,7 +41,6 @@ export default function PerfilScreen({ navigation }) {
             </View>
           </View>
 
-          {/* Botón Editar perfil */}
           <TouchableOpacity 
             style={styles.editProfileButton}
             onPress={() => navigation.navigate('EditarPerfil')}
@@ -112,10 +121,8 @@ export default function PerfilScreen({ navigation }) {
             Nunca compartimos tu información personal.
           </Text>
 
-          {/* Línea divisoria */}
           <View style={styles.divider} />
 
-          {/* Estadísticas de uso */}
           <Text style={styles.statsTitle}>Estadísticas de uso</Text>
           <Text style={styles.statsSubtitle}>Tu actividad en la App</Text>
           
@@ -162,24 +169,20 @@ export default function PerfilScreen({ navigation }) {
             <Text style={styles.helpText}>Calificar la App</Text>
           </TouchableOpacity>
 
-          {/* Línea divisoria */}
           <View style={styles.divider} />
 
-          {/* Información de la app */}
           <Text style={styles.appInfo}>Ahorra + App</Text>
           <Text style={styles.appVersion}>Versión 10.0</Text>
         </View>
 
-        {/* Botón cerrar sesión */}
         <TouchableOpacity style={styles.logoutButton}>
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>
 
-        {/* Espacio extra para que no quede tapado por la barra de navegación */}
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      {/* Navigation Bar - VERDE SOLIDO */}
+      {/* Navigation Bar */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navItem}>
           <Ionicons name="home-outline" size={24} color="#FFFFFF" />
@@ -210,23 +213,49 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: '#E8F3EC' 
   },
+  // HEADER MEJORADO - Con ícono de perfil a la derecha
   header: { 
-    alignItems: 'center', 
-    padding: 20,
+    backgroundColor: '#FFFFFF',
     paddingTop: 50,
-    backgroundColor: '#E8F3EC',
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  logo: { 
+  iconContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    flex: 1,
+  },
+  icono: {
+    width: 35,
+    height: 35,
+    marginRight: 10,
+  },
+  logoText: { 
     fontSize: 20, 
     fontWeight: 'bold', 
-    color: '#1B3C2A' 
+    color: '#0D7A43', // VERDE como en tu imagen
+  },
+  profileIcon: {
+    // El ícono de perfil se alinea a la derecha automáticamente
   },
   scroll: { 
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 80, // Más espacio para la barra de navegación
+    paddingBottom: 80,
+    paddingTop: 20,
   },
   mainTitle: {
     fontSize: 24,
@@ -408,15 +437,13 @@ const styles = StyleSheet.create({
   bottomSpacer: {
     height: 20,
   },
-  // Navigation Bar Styles - VERDE SOLIDO ASEGURADO
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#2FB16B', // VERDE
+    backgroundColor: '#2FB16B',
     paddingVertical: 15,
     paddingHorizontal: 10,
     borderTopWidth: 0,
-    // Asegurar que el verde sea sólido
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -430,7 +457,7 @@ const styles = StyleSheet.create({
   },
   navText: {
     fontSize: 12,
-    color: '#FFFFFF', // Texto blanco
+    color: '#FFFFFF',
     marginTop: 4,
     fontWeight: '500',
   },
