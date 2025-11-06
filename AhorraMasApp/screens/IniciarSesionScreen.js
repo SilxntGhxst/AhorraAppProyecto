@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, SafeAreaView, ImageBackground, TextInput, TouchableOpacity, Alert, Image,} from 'react-native';
+import { Text, StyleSheet, View, SafeAreaView, ImageBackground, TextInput, TouchableOpacity, Alert, Image} from 'react-native';
 
 export default function IniciarSesionScreen() {
   const [correo, setCorreo] = useState('');
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CFF6DD',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff94',
     width: '85%',
     borderRadius: 20,
     padding: 20,
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#e8e8e83c',
+    backgroundColor: '#e8e8e846',
     borderRadius: 25,
     marginBottom: 20,
     width: '100%',
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 24,
     alignItems: 'center',
-     backgroundColor: '#ffffff',
+     backgroundColor: '#ffffff21',
 
   },
   tabActive: {
@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     alignSelf: 'stretch',
     marginBottom: 15,
+    fontWeight:'500'
   },
   BotonInicio: {
     backgroundColor: '#437C68',
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
     width: '60%',
   },
   socialIcon: {
-    backgroundColor: '#ffffffff',
+    backgroundColor: '#ffffff3b',
     borderRadius: 10,
     padding: 10,
     elevation: 3,

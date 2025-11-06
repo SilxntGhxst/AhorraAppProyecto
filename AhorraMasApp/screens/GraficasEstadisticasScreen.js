@@ -1,37 +1,37 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image } from "react-native";
+import { Ionicons,MaterialIcons } from "@expo/vector-icons";
 
 export default function GraficasEstadisticasScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      /* Encabezado */
+
       <View style={styles.header}>
-                  <Image
-                        source={require('../assets/piglogo.png')}
-                        style={styles.icono}
-                      />
-        <Text style={styles.logoText}> Ahorra +App</Text>
+        <View style={styles.iconContent}>     
+          <Image
+                source={require('../assets/piglogo.png')}
+                style={styles.icono}
+              />
+            <Text style={styles.logoText}> Ahorra +App</Text>
+        </View>
+        
         <View style={styles.profileIcon}>
           <Ionicons name="person-circle-outline" size={32} color="#0D7A43" />
         </View>
       </View>
 
-      /* Título y descripción */
       <View style={styles.sectionHeader}>
         <Text style={styles.title}>Gráficas y Estadísticas</Text>
         <Text style={styles.subtitle}>
           Visualiza tus patrones de ingresos y gastos
         </Text>
 
-        /* Selector de mes */
         <View style={styles.monthSelector}>
           <Text style={styles.monthText}>Septiembre</Text>
           <Ionicons name="chevron-down" size={18} color="#555" />
         </View>
       </View>
 
-      /* Pestañas */
       <View style={styles.tabs}>
         <TouchableOpacity style={[styles.tab, styles.tabActive]}>
           <Text style={[styles.tabText, styles.tabTextActive]}>Por Categorías</Text>
@@ -44,11 +44,9 @@ export default function GraficasEstadisticasScreen() {
         </TouchableOpacity>
       </View>
 
-      /* Cuerpo scrollable */
       <ScrollView contentContainerStyle={styles.content}>
-        /* Tarjeta de gastos */
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>📉 Gastos por Categoría</Text>
+          <Text style={styles.cardTitle}>Gastos por Categoría</Text>
           <Text style={styles.cardSubtitle}>
             Distribución de gastos en Septiembre 2025
           </Text>
@@ -57,9 +55,8 @@ export default function GraficasEstadisticasScreen() {
           </Text>
         </View>
 
-        /* Tarjeta de ingresos */
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>📈 Ingresos por Categoría</Text>
+          <Text style={styles.cardTitle}>Ingresos por Categoría</Text>
           <Text style={styles.cardSubtitle}>
             Distribución de ingresos en Septiembre 2025
           </Text>
@@ -69,12 +66,26 @@ export default function GraficasEstadisticasScreen() {
         </View>
       </ScrollView>
 
-      /* Barra de navegación inferior */
-      <View style={styles.bottomNav}>
-        <Ionicons name="home-outline" size={24} color="#0D7A43" />
-        <Ionicons name="document-text-outline" size={24} color="#0D7A43" />
-        <Ionicons name="stats-chart" size={26} color="#0D7A43" />
-        <Ionicons name="settings-outline" size={24} color="#0D7A43" />
+      <View style={styles.navBar}>
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="home-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.navText}>Inicio</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navItem}>
+          <MaterialIcons name="credit-card" size={24} color="#FFFFFF" />
+          <Text style={styles.navText}>Transacciones</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="stats-chart-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.navText}>Estadísticas</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navItem}>
+          <MaterialIcons name="account-balance-wallet" size={24} color="#FFFFFF" />
+          <Text style={styles.navText}>Presupuestos</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -186,13 +197,37 @@ const styles = StyleSheet.create({
     color: "#888",
     marginTop: 12,
   },
-  bottomNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#DFF5E3",
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#CDEED4",
+    icono: {
+    width: 30,
+    height: 30,
+  },
+  iconContent:{
+    flexDirection:"row",
+    alignItems:"center",
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#2FB16B', // VERDE
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderTopWidth: 0,
+    // Asegurar que el verde sea sólido
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  navText: {
+    fontSize: 12,
+    color: '#FFFFFF', // Texto blanco
+    marginTop: 4,
+    fontWeight: '500',
   },
 });
