@@ -7,6 +7,7 @@ import GraficasEstadisticasScreen from './GraficasEstadisticasScreen'
 import PresupuestosMensuales from './PresupuestosMensuales'
 import PerfilScreen from './PerfilScreen'
 import TransactionsScreen from './TransactionsScreen'
+import AhorraAppScreen from './InicioScreen'
 
 
 
@@ -31,7 +32,8 @@ export default function MenuScreen() {
           return <GraficasEstadisticasScreen/>
         case 'Mes':
           return <PresupuestosMensuales/>
-     
+        case 'Inicio':
+          return <AhorraAppScreen/>
         case 'menu':
             default:
             return (
@@ -53,6 +55,7 @@ export default function MenuScreen() {
         <View style={styles.contenedorBotones2}>
         <Button color="#2AA63E" onPress={()=>setScreen('IniciarSesion')} title='Screen Iniciar sesión'/>
         <Button color="#2AA63E" onPress={()=>setScreen('Registrar')} title='Screen Registrar'/>
+        <Button color="#2AA63E" onPress={()=>setScreen('Inicio')} title=' Screen Inicio'/>
         <Button color="#2AA63E" onPress={()=>setScreen('Perfil')} title='Screen Perfil'/>
         <Button color="#2AA63E" onPress={()=>setScreen('EditarPerfil')} title='Screen Editar Perfil'/>
         <Button color="#2AA63E" onPress={()=>setScreen('Transacciones')} title='Screen Transacciones'/>
