@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import { Ionicons } from '@expo/vector-icons';
 import IniciarSesionScreen from '../screens/IniciarSesionScreen';
 import RegistrarScreen from '../screens/RegistrarScreen';
@@ -17,7 +18,8 @@ import EditarPerfilScreens from '../screens/EditarPerfilScreens';
 
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
+
 
 
 function PerfilStack() {
