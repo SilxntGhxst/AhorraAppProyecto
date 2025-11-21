@@ -4,6 +4,8 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import IniciarSesionScreen from '../screens/IniciarSesionScreen';
+import RegistrarScreen from '../screens/RegistrarScreen';
 
 
 import AhorraAppScreen from '../screens/InicioScreen';
@@ -99,6 +101,31 @@ function MainTabNavigator() {
                 }}
             />
         </Tab.Navigator>
+    );
+
+}
+
+function AuthStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={IniciarSesionScreen} />
+      <Stack.Screen name="Registro" component={RegistrarScreen} />
+      <Stack.Screen name="RecuperarContrasena" component={RecuperarContrasenaScreen} />
+    </Stack.Navigator>
+  );
+}
+
+export function RootNavigator() {
+    
+    const userIsLoggedIn = false; 
+    return (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+            
+            <Stack.Screen name="Auth" component={AuthStack} />
+            
+           
+            <Stack.Screen name="AppTabs" component={MainTabNavigator} />
+        </Stack.Navigator>
     );
 }
 
