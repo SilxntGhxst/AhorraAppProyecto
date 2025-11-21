@@ -211,28 +211,7 @@ export default function EditarPerfilScreen({ navigation, onSave, onCancel }) {
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      {/* Navigation Bar - Verde */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home-outline" size={24} color="#FFFFFF" />
-          <Text style={styles.navText}>Inicio</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="credit-card" size={24} color="#FFFFFF" />
-          <Text style={styles.navText}>Transacciones</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="stats-chart-outline" size={24} color="#FFFFFF" />
-          <Text style={styles.navText}>Estadísticas</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem}>
-          <MaterialIcons name="account-balance-wallet" size={24} color="#FFFFFF" />
-          <Text style={styles.navText}>Presupuestos</Text>
-        </TouchableOpacity>
-      </View>
+    
     </View>
   );
 }
