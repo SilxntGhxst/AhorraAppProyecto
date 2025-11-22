@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,95 +8,173 @@ import {
   StatusBar,
   StyleSheet,
   Image,
+  Modal,
+  Alert,
 } from "react-native";
 import {
-  Search,
-  SlidersHorizontal,
   Edit2,
   Trash2,
   TrendingUp,
   TrendingDown,
+  X,
+  Plus,
+  SlidersHorizontal,
+  Search,
 } from "lucide-react-native";
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import * as SecureStore from "expo-secure-store";
+import {
+  getTransactions,
+  addTransaction,
+  deleteTransaction,
+  updateTransaction,
+} from "../services/DBService";
 
 const TransactionsScreen = () => {
-  const [searchText, setSearchText] = useState('');
-  
-  const transactions = [
-    {
-      id: 1,
-      title: "Proyecto freelance",
-      category: "Freelance",
-      date: "24 de septiembre del 2025",
-      amount: 5500.0,
-      type: "income",
-    },
-    {
-      id: 2,
-      title: "Cena en restaurante",
-      category: "Entretenimiento",
-      date: "17 de septiembre del 2025",
-      amount: -1200.0,
-      type: "expense",
-    },
-    {
-      id: 3,
-      title: "Gasolina",
-      category: "Transporte",
-      date: "10 de septiembre del 2025",
-      amount: -350.0,
-      type: "expense",
-    },
-    {
-      id: 4,
-      title: "Compras del supermercado",
-      category: "Alimentación",
-      date: "7 de septiembre del 2025",
-      amount: -800.0,
-      type: "expense",
-    },
-    {
-      id: 5,
-      title: "Salario mensual",
-      category: "Salario",
-      date: "1 de septiembre del 2025",
-      amount: 25500.0,
-      type: "income",
-    },
-  ];
+  const [searchText, setSearchText] = useState("");
+  const [transactions, setTransactions] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
+  // Formulario
+  const [newTitle, setNewTitle] = useState("");
+  const [newAmount, setNewAmount] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [newType, setNewType] = useState("expense");
+
+  const loadData = async () => {
+    try {
+      const userId = await SecureStore.getItemAsync("user_id");
+      if (userId) {
+        const data = await getTransactions(userId);
+        setTransactions(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [])
+  );
+
+  const openModalForCreate = () => {
+    setEditingId(null);
+    setNewTitle("");
+    setNewAmount("");
+    setNewCategory("");
+    setNewType("expense");
+    setModalVisible(true);
+  };
+
+  const openModalForEdit = (item) => {
+    setEditingId(item.id);
+    setNewTitle(item.titulo);
+    setNewAmount(Math.abs(item.monto).toString());
+    setNewCategory(item.categoria);
+    setNewType(item.tipo || "expense");
+    setModalVisible(true);
+  };
+
+  const handleSaveTransaction = async () => {
+    if (!newTitle || !newAmount || !newCategory) {
+      Alert.alert("Error", "Completa todos los campos");
+      return;
+    }
+
+    try {
+      const userId = await SecureStore.getItemAsync("user_id");
+      const fecha = new Date().toLocaleDateString("es-MX", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const montoFinal =
+        parseFloat(newAmount) * (newType === "expense" ? -1 : 1);
+
+      if (editingId) {
+        await updateTransaction(
+          editingId,
+          newTitle,
+          newCategory,
+          fecha,
+          montoFinal,
+          newType
+        );
+        Alert.alert("Actualizado", "Transacción modificada correctamente");
+      } else {
+        await addTransaction(
+          userId,
+          newTitle,
+          newCategory,
+          fecha,
+          montoFinal,
+          newType
+        );
+        Alert.alert("Guardado", "Transacción creada correctamente");
+      }
+
+      setModalVisible(false);
+      loadData();
+    } catch (error) {
+      Alert.alert("Error", "No se pudo guardar");
+    }
+  };
+
+  const handleDelete = (id) => {
+    Alert.alert("Eliminar", "¿Borrar esta transacción?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Eliminar",
+        style: "destructive",
+        onPress: async () => {
+          await deleteTransaction(id);
+          loadData();
+        },
+      },
+    ]);
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-
       <View style={styles.header}>
-        <View style={styles.iconContent}>     
+        <View style={styles.iconContent}>
           <Image
-            source={require('../assets/Puerquito2.jpg')}
+            source={require("../assets/Puerquito2.jpg")}
             style={styles.icono}
           />
           <Text style={styles.logoText}>Ahorra +App</Text>
         </View>
-        
         <View style={styles.profileIcon}>
           <Ionicons name="person-circle-outline" size={32} color="#0D7A43" />
         </View>
       </View>
 
-      {/* Seccion titulo */}
       <View style={styles.titleSection}>
         <View style={styles.titleRow}>
           <View style={styles.titleIcon}>
             <Text style={styles.titleEmoji}>📄</Text>
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.titleText}>Transacciones</Text>
-            <Text style={styles.subtitleText}>5 de 5 transacciones</Text>
+            <Text style={styles.subtitleText}>
+              {transactions.length} movimientos
+            </Text>
           </View>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={openModalForCreate}
+          >
+            <Plus size={24} color="white" />
+          </TouchableOpacity>
         </View>
       </View>
 
-      {/* Card filtros */}
+      {/* Filtros visuales (se mantienen igual) */}
       <View style={styles.filtersContainer}>
         <View style={styles.filtersCard}>
           <View style={styles.filtersHeader}>
@@ -106,13 +184,11 @@ const TransactionsScreen = () => {
               <Text style={styles.filterButtonText}>Filtros</Text>
             </TouchableOpacity>
           </View>
-
           <View style={styles.searchBar}>
             <Search size={20} color="#9CA3AF" />
             <TextInput
               style={styles.searchInput}
               placeholder="Buscar transacciones..."
-              placeholderTextColor="#9CA3AF"
               value={searchText}
               onChangeText={setSearchText}
             />
@@ -120,69 +196,51 @@ const TransactionsScreen = () => {
         </View>
       </View>
 
-      {/* Lista de transacciones */}
       <ScrollView
         style={styles.transactionsList}
         showsVerticalScrollIndicator={false}
       >
         {transactions.map((transaction) => {
-          const IconComponent =
-            transaction.type === "income" ? TrendingUp : TrendingDown;
+          const isIncome =
+            transaction.tipo === "income" || transaction.monto > 0;
+          const IconComponent = isIncome ? TrendingUp : TrendingDown;
+          const color = isIncome ? "#10B981" : "#EF4444";
 
           return (
             <View key={transaction.id} style={styles.transactionCard}>
               <View style={styles.transactionContent}>
                 <View style={styles.transactionLeft}>
                   <Text style={styles.transactionTitle}>
-                    {transaction.title}
+                    {transaction.titulo}
                   </Text>
-
                   <View style={styles.transactionDetails}>
-                    <IconComponent
-                      size={16}
-                      color={
-                        transaction.type === "income" ? "#10B981" : "#EF4444"
-                      }
-                    />
+                    <IconComponent size={16} color={color} />
                     <View
-                      style={[
-                        styles.categoryDot,
-                        {
-                          backgroundColor:
-                            transaction.type === "income"
-                              ? "#10B981"
-                              : "#EF4444",
-                        },
-                      ]}
+                      style={[styles.categoryDot, { backgroundColor: color }]}
                     />
                     <Text style={styles.categoryText}>
-                      {transaction.category}
+                      {transaction.categoria}
                     </Text>
                     <Text style={styles.separator}>·</Text>
-                    <Text style={styles.dateText}>{transaction.date}</Text>
+                    <Text style={styles.dateText}>{transaction.fecha}</Text>
                   </View>
                 </View>
-
                 <View style={styles.transactionRight}>
-                  <Text
-                    style={[
-                      styles.amountText,
-                      {
-                        color:
-                          transaction.type === "income" ? "#10B981" : "#EF4444",
-                      },
-                    ]}
-                  >
-                    {transaction.type === "income" ? "+" : "-"} $
-                    {Math.abs(transaction.amount).toLocaleString("es-MX", {
-                      minimumFractionDigits: 2,
-                    })}
+                  <Text style={[styles.amountText, { color: color }]}>
+                    {isIncome ? "+" : ""} $
+                    {Math.abs(transaction.monto).toFixed(2)}
                   </Text>
                   <View style={styles.actions}>
-                    <TouchableOpacity style={styles.actionButton}>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => openModalForEdit(transaction)}
+                    >
                       <Edit2 size={20} color="#6B7280" />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => handleDelete(transaction.id)}
+                    >
                       <Trash2 size={20} color="#EF4444" />
                     </TouchableOpacity>
                   </View>
@@ -194,61 +252,118 @@ const TransactionsScreen = () => {
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {editingId ? "Editar Transacción" : "Nueva Transacción"}
+              </Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <X size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.label}>Título</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej. Salario"
+              value={newTitle}
+              onChangeText={setNewTitle}
+            />
+
+            <Text style={styles.label}>Monto</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="0.00"
+              keyboardType="numeric"
+              value={newAmount}
+              onChangeText={setNewAmount}
+            />
+
+            <Text style={styles.label}>Categoría</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej. Transporte"
+              value={newCategory}
+              onChangeText={setNewCategory}
+            />
+
+            <View style={styles.typeSelector}>
+              <TouchableOpacity
+                style={[
+                  styles.typeButton,
+                  newType === "expense" && styles.typeButtonActiveExpense,
+                ]}
+                onPress={() => setNewType("expense")}
+              >
+                <Text
+                  style={[
+                    styles.typeText,
+                    newType === "expense" && styles.typeTextActive,
+                  ]}
+                >
+                  Gasto
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.typeButton,
+                  newType === "income" && styles.typeButtonActiveIncome,
+                ]}
+                onPress={() => setNewType("income")}
+              >
+                <Text
+                  style={[
+                    styles.typeText,
+                    newType === "income" && styles.typeTextActive,
+                  ]}
+                >
+                  Ingreso
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={handleSaveTransaction}
+            >
+              <Text style={styles.saveButtonText}>Guardar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#E8F3EC",
-  },
-  // HEADER - Igual que PerfilScreen
-  header: { 
-    backgroundColor: '#FFFFFF',
+  container: { flex: 1, backgroundColor: "#E8F3EC" },
+  header: {
+    backgroundColor: "#FFFFFF",
     paddingTop: 50,
     paddingBottom: 15,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    borderBottomColor: "#E0E0E0",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  iconContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    flex: 1,
-  },
-  icono: {
-    width: 35,
-    height: 35,
-    marginRight: 10,
-  },
-  logoText: { 
-    fontSize: 20, 
-    fontWeight: 'bold', 
-    color: '#0D7A43',
-  },
-  profileIcon: {
-    // El ícono de perfil se alinea a la derecha automáticamente
-  },
+  iconContent: { flexDirection: "row", alignItems: "center" },
+  icono: { width: 35, height: 35, marginRight: 10 },
+  logoText: { fontSize: 20, fontWeight: "bold", color: "#0D7A43" },
   titleSection: {
     backgroundColor: "#E8F3EC",
     paddingHorizontal: 20,
     paddingVertical: 15,
   },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+  titleRow: { flexDirection: "row", alignItems: "center" },
   titleIcon: {
     width: 40,
     height: 40,
@@ -258,57 +373,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 12,
   },
-  titleEmoji: {
-    fontSize: 24,
-  },
-  titleText: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1F2937",
-  },
-  subtitleText: {
-    fontSize: 14,
-    color: "#6B7280",
-  },
-  filtersContainer: {
-    paddingHorizontal: 20,
-    marginTop: 10,
-  },
+  titleEmoji: { fontSize: 24 },
+  titleText: { fontSize: 20, fontWeight: "600", color: "#1F2937" },
+  subtitleText: { fontSize: 14, color: "#6B7280" },
+  filtersContainer: { paddingHorizontal: 20, marginTop: 10 },
   filtersCard: {
     backgroundColor: "white",
     borderRadius: 12,
     padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 8,
     elevation: 2,
   },
   filtersHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 12,
   },
-  filtersTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#1F2937",
-  },
+  filtersTitle: { fontSize: 16, fontWeight: "500" },
   filterButton: {
     flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+    padding: 6,
     borderWidth: 1,
     borderColor: "#E5E7EB",
+    borderRadius: 6,
   },
-  filterButtonText: {
-    fontSize: 14,
-    color: "#6B7280",
-    marginLeft: 6,
-  },
+  filterButtonText: { fontSize: 14, color: "#6B7280", marginLeft: 6 },
   searchBar: {
     backgroundColor: "#F3F4F6",
     borderRadius: 8,
@@ -317,110 +406,92 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
-  searchInput: {
-    flex: 1,
-    color: "#1F2937",
-    fontSize: 15,
-    marginLeft: 8,
-    paddingVertical: 0,
-  },
-  transactionsList: {
-    flex: 1,
-    paddingHorizontal: 20,
-    marginTop: 15,
-  },
+  searchInput: { flex: 1, marginLeft: 8 },
+  transactionsList: { flex: 1, paddingHorizontal: 20, marginTop: 15 },
   transactionCard: {
     backgroundColor: "white",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 8,
     elevation: 2,
   },
-  transactionContent: {
+  transactionContent: { flexDirection: "row", justifyContent: "space-between" },
+  transactionLeft: { flex: 1 },
+  transactionTitle: { fontSize: 17, fontWeight: "600", marginBottom: 8 },
+  transactionDetails: { flexDirection: "row", alignItems: "center" },
+  categoryDot: { width: 6, height: 6, borderRadius: 3, marginHorizontal: 6 },
+  categoryText: { fontSize: 13, color: "#6B7280" },
+  dateText: { fontSize: 13, color: "#6B7280" },
+  separator: { marginHorizontal: 6, color: "#9CA3AF" },
+  transactionRight: { alignItems: "flex-end" },
+  amountText: { fontSize: 17, fontWeight: "600", marginBottom: 8 },
+  actions: { flexDirection: "row" },
+  actionButton: { marginLeft: 10 },
+  bottomSpacer: { height: 80 },
+
+  // Nuevos estilos
+  addButton: {
+    backgroundColor: "#0D7A43",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 40,
+    minHeight: 450,
+  },
+  modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    marginBottom: 20,
   },
-  transactionLeft: {
+  modalTitle: { fontSize: 20, fontWeight: "bold" },
+  label: { fontSize: 14, color: "#666", marginBottom: 5, marginTop: 10 },
+  input: {
+    backgroundColor: "#F3F4F6",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  typeSelector: { flexDirection: "row", marginVertical: 20, gap: 10 },
+  typeButton: {
     flex: 1,
-  },
-  transactionTitle: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#1F2937",
-    marginBottom: 8,
-  },
-  transactionDetails: {
-    flexDirection: "row",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     alignItems: "center",
   },
-  categoryDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginLeft: 6,
-    marginRight: 8,
+  typeButtonActiveExpense: {
+    backgroundColor: "#FEE2E2",
+    borderColor: "#EF4444",
   },
-  categoryText: {
-    fontSize: 13,
-    color: "#6B7280",
+  typeButtonActiveIncome: {
+    backgroundColor: "#D1FAE5",
+    borderColor: "#10B981",
   },
-  separator: {
-    fontSize: 13,
-    color: "#9CA3AF",
-    marginHorizontal: 6,
-  },
-  dateText: {
-    fontSize: 13,
-    color: "#6B7280",
-  },
-  transactionRight: {
-    alignItems: "flex-end",
-  },
-  amountText: {
-    fontSize: 17,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  actions: {
-    flexDirection: "row",
+  typeText: { fontWeight: "600", color: "#6B7280" },
+  typeTextActive: { color: "#1F2937" },
+  saveButton: {
+    backgroundColor: "#0D7A43",
+    padding: 16,
+    borderRadius: 10,
     alignItems: "center",
   },
-  actionButton: {
-    marginLeft: 8,
-  },
-  bottomSpacer: {
-    height: 80,
-  },
-  
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#2FB16B',
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    borderTopWidth: 0,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-  },
-  navText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    marginTop: 4,
-    fontWeight: '500',
-  },
+  saveButtonText: { color: "white", fontWeight: "bold", fontSize: 16 },
 });
 
 export default TransactionsScreen;

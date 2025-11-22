@@ -10,45 +10,50 @@ import {
   Alert,
   Image,
 } from "react-native";
+import { findUser } from '../services/DBService';
+import * as SecureStore from 'expo-secure-store'; // O AsyncStorage
 
-export default function IniciarSesionScreen() {
+export default function IniciarSesionScreen({ navigation }) { 
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
 
   const iniciarSesion = () => {
     if (correo.trim() === "") {
-      Alert.alert("Error  Por favor Ingresa un Correo");
-      alert("Error  Por favor Ingresa un Correo");
-
+      Alert.alert("Error", "Por favor Ingresa un Correo");
       return;
     }
     if (contrasena.trim() === "") {
-      Alert.alert("Error  Por favor Ingresa tu Contraseña");
-      alert("Error  Por favor Ingresa tu Contraseña");
-
+      Alert.alert("Error", "Por favor Ingresa tu Contraseña");
       return;
     }
     const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!correoRegex.test(correo)) {
-      alert("'Por favor, Ingresa una dirección de correo válida");
-      Alert.alert("Por favor, Ingresa una dirección de correo válida");
+      Alert.alert("Error", "Por favor, Ingresa una dirección de correo válida");
       return;
-    } else if (
-      correo.toLowerCase() === "test@app.com" &&
-      contrasena === "123456"
-    ) {
-      // SIMULACIÓN DE CREDENCIALES VÁLIDAS
-      alert("BIENVENIDO");
-      Alert.alert("BIENVENIDO");
+    } 
 
-      // **AQUÍ VA LA NAVEGACIÓN REAL**
-      // navigation.navigate('Inicio'); // Asumiendo que 'Inicio' es el nombre de la ruta para AhorraAppScreen
-    } else if (correo.trim() !== "" && contrasena.trim() !== "") {
-      // SIMULACIÓN DE CREDENCIALES NO VÁLIDAS
-      Alert.alert("Error", "Correo o contraseña incorrectos.");
-      return;
-    }
+    findUser(correo, contrasena)
+      .then(async (user) => {
+        if (user) {
+          await SecureStore.setItemAsync('user_id', user.id.toString());
+          if (user.nombre) {
+            await SecureStore.setItemAsync('user_name', user.nombre);
+          }
 
+
+          Alert.alert("Bienvenido", "Has iniciado sesión correctamente");
+
+          navigation.replace('AppTabs'); 
+          
+        } else {
+          Alert.alert("Error", "Correo o contraseña incorrectos.");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        Alert.alert("Error", "Ocurrió un problema al intentar iniciar sesión.");
+      });
+      
     setCorreo("");
     setContrasena("");
   };
