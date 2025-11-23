@@ -6,25 +6,53 @@ import {
   StatusBar,
   StyleSheet,
   ScrollView,
-  Image
+  Image,
+  Modal,      
+  TextInput,
+  Alert
 } from 'react-native';
 import { 
   ChevronDown,
   Plus,
   Edit2,
-  Trash2
+  Trash2,
+  X 
 } from 'lucide-react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+
+import { useFocusEffect } from '@react-navigation/native';
+import * as SecureStore from 'expo-secure-store';
+import { getBudgets, addBudget } from '../services/DBService'; 
 
 const PresupuestosMensuales = () => {
   const [selectedMonth, setSelectedMonth] = useState('Septiembre');
   const [selectedYear, setSelectedYear] = useState('2025');
   const [showEmpty, setShowEmpty] = useState(false);
+  const [budgets, setBudgets] = useState([]); 
+  const [modalVisible, setModalVisible] = useState(false);
 
   const months = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
+
+  const loadBudgets = async () => {
+    try {
+      const userId = await SecureStore.getItemAsync('user_id');
+      if (userId) {
+        
+        const data = await getBudgets(userId, selectedMonth, selectedYear);
+        setBudgets(data);
+      }
+    } catch (error) {
+      console.error("Error cargando presupuestos:", error);
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      loadBudgets();
+    }, [selectedMonth, selectedYear]) 
+  );
 
   const budgets = [
     {
