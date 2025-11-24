@@ -31,6 +31,7 @@ import {
   updateTransaction,
 } from "../services/DBService";
 
+
 const TransactionsScreen = () => {
   const [searchText, setSearchText] = useState("");
   const [transactions, setTransactions] = useState([]);
