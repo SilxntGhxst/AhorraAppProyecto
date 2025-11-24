@@ -1,8 +1,9 @@
 // services/DBService.js
 import * as SQLite from "expo-sqlite";
 
+
 // Abre la base de datos
-const db = SQLite.openDatabase("ahorraapp.db");
+const db = SQLite.openDatabase("ahorraApp.db");
 
 export const initDB = () => {
   db.transaction((tx) => {
