@@ -1,135 +1,102 @@
-// services/DBService.js
 import * as SQLite from "expo-sqlite";
 
+// Usar la nueva API síncrona (compatible con Expo 51+)
+const db = SQLite.openDatabaseSync("ahorraapp.db");
 
-// Abre la base de datos
-const db = SQLite.openDatabase("ahorraApp.db");
-
-export const initDB = () => {
-  db.transaction((tx) => {
-    // Tabla Usuarios
-    tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, email TEXT UNIQUE, telefono TEXT, password TEXT);"
-    );
-    // Tabla Transacciones (CRUD Punto 2)
-    tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS transacciones (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, titulo TEXT, categoria TEXT, fecha TEXT, monto REAL, tipo TEXT, FOREIGN KEY (user_id) REFERENCES usuarios(id));"
-    );
-    // Tabla Presupuestos (CRUD Punto 4)
-    tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS presupuestos (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, categoria TEXT, monto_limite REAL, monto_gastado REAL, mes TEXT, anio TEXT, FOREIGN KEY (user_id) REFERENCES usuarios(id));"
-    );
-  });
+export const initDB = async () => {
+  try {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, email TEXT UNIQUE, telefono TEXT, password TEXT);
+      CREATE TABLE IF NOT EXISTS transacciones (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, titulo TEXT, categoria TEXT, fecha TEXT, monto REAL, tipo TEXT, FOREIGN KEY (user_id) REFERENCES usuarios(id));
+      CREATE TABLE IF NOT EXISTS presupuestos (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, categoria TEXT, monto_limite REAL, monto_gastado REAL, mes TEXT, anio TEXT, FOREIGN KEY (user_id) REFERENCES usuarios(id));
+    `);
+  } catch (error) {
+    console.error("Error initDB:", error);
+  }
 };
 
-// --- USUARIOS (Punto 1) ---
-export const registerUser = (nombre, email, telefono, password) => {
-  return new Promise((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "INSERT INTO usuarios (nombre, email, telefono, password) VALUES (?, ?, ?, ?);",
-        [nombre, email, telefono, password],
-        (_, result) => resolve(result),
-        (_, error) => reject(error)
-      );
-    });
-  });
+// --- USUARIOS ---
+
+export const registerUser = async (nombre, email, telefono, password) => {
+  return await db.runAsync(
+    "INSERT INTO usuarios (nombre, email, telefono, password) VALUES (?, ?, ?, ?);",
+    [nombre, email, telefono, password]
+  );
 };
 
-export const findUser = (email, password) => {
-  return new Promise((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "SELECT * FROM usuarios WHERE email = ? AND password = ?;",
-        [email, password],
-        (_, { rows }) => resolve(rows._array.length > 0 ? rows._array[0] : null),
-        (_, error) => reject(error)
-      );
-    });
-  });
+export const findUser = async (email, password) => {
+  return await db.getFirstAsync(
+    "SELECT * FROM usuarios WHERE email = ? AND password = ?;",
+    [email, password]
+  );
 };
 
-// --- TRANSACCIONES (Punto 2) ---
-export const addTransaction = (userId, titulo, categoria, fecha, monto, tipo) => {
-  return new Promise((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "INSERT INTO transacciones (user_id, titulo, categoria, fecha, monto, tipo) VALUES (?, ?, ?, ?, ?, ?);",
-        [userId, titulo, categoria, fecha, monto, tipo],
-        (_, result) => resolve(result),
-        (_, error) => reject(error)
-      );
-    });
-  });
+// ✅ FUNCIÓN FALTANTE AGREGADA
+export const findUserByEmail = async (email) => {
+  return await db.getFirstAsync("SELECT * FROM usuarios WHERE email = ?;", [
+    email,
+  ]);
 };
 
-export const getTransactions = (userId) => {
-  return new Promise((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "SELECT * FROM transacciones WHERE user_id = ? ORDER BY id DESC;",
-        [userId],
-        (_, { rows }) => resolve(rows._array),
-        (_, error) => reject(error)
-      );
-    });
-  });
+// ✅ NUEVA FUNCIÓN PARA ACTUALIZAR CONTRASEÑA
+export const updateUserPassword = async (email, newPassword) => {
+  return await db.runAsync(
+    "UPDATE usuarios SET password = ? WHERE email = ?;",
+    [newPassword, email]
+  );
 };
 
-export const deleteTransaction = (id) => {
-  return new Promise((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql("DELETE FROM transacciones WHERE id = ?;", [id], (_, result) => resolve(result), (_, err) => reject(err));
-    });
-  });
+// --- TRANSACCIONES ---
+export const addTransaction = async (
+  userId,
+  titulo,
+  categoria,
+  fecha,
+  monto,
+  tipo
+) => {
+  return await db.runAsync(
+    "INSERT INTO transacciones (user_id, titulo, categoria, fecha, monto, tipo) VALUES (?, ?, ?, ?, ?, ?);",
+    [userId, titulo, categoria, fecha, monto, tipo]
+  );
 };
 
-// --- PRESUPUESTOS (Punto 4) ---
-export const addBudget = (userId, categoria, montoLimite, mes, anio) => {
-  return new Promise((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "INSERT INTO presupuestos (user_id, categoria, monto_limite, monto_gastado, mes, anio) VALUES (?, ?, ?, 0, ?, ?);",
-        [userId, categoria, montoLimite, mes, anio],
-        (_, result) => resolve(result),
-        (_, error) => reject(error)
-      );
-    });
-  });
+export const getTransactions = async (userId) => {
+  return await db.getAllAsync(
+    "SELECT * FROM transacciones WHERE user_id = ? ORDER BY id DESC;",
+    [userId]
+  );
 };
 
-export const getBudgets = (userId, mes, anio) => {
-  return new Promise((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "SELECT * FROM presupuestos WHERE user_id = ? AND mes = ? AND anio = ?;",
-        [userId, mes, anio],
-        (_, { rows }) => resolve(rows._array),
-        (_, error) => reject(error)
-      );
-    });
-  });
+export const updateTransaction = async (
+  id,
+  titulo,
+  categoria,
+  fecha,
+  monto,
+  tipo
+) => {
+  return await db.runAsync(
+    "UPDATE transacciones SET titulo = ?, categoria = ?, fecha = ?, monto = ?, tipo = ? WHERE id = ?;",
+    [titulo, categoria, fecha, monto, tipo, id]
+  );
 };
 
-// Actualizar gasto en presupuesto (Lógica extra para integrar puntos)
-export const updateBudgetSpent = (userId, categoria, mes, anio, monto) => {
-    db.transaction((tx) => {
-        tx.executeSql(
-            "UPDATE presupuestos SET monto_gastado = monto_gastado + ? WHERE user_id = ? AND categoria = ? AND mes = ? AND anio = ?;",
-            [monto, userId, categoria, mes, anio]
-        );
-    });
-}
+export const deleteTransaction = async (id) => {
+  return await db.runAsync("DELETE FROM transacciones WHERE id = ?;", [id]);
+};
 
-export const updateTransaction = (id, titulo, categoria, fecha, monto, tipo) => {
-  return new Promise((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "UPDATE transacciones SET titulo = ?, categoria = ?, fecha = ?, monto = ?, tipo = ? WHERE id = ?;",
-        [titulo, categoria, fecha, monto, tipo, id],
-        (_, result) => resolve(result),
-        (_, error) => reject(error)
-      );
-    });
-  });
+// --- PRESUPUESTOS ---
+export const addBudget = async (userId, categoria, montoLimite, mes, anio) => {
+  return await db.runAsync(
+    "INSERT INTO presupuestos (user_id, categoria, monto_limite, monto_gastado, mes, anio) VALUES (?, ?, ?, 0, ?, ?);",
+    [userId, categoria, montoLimite, mes, anio]
+  );
+};
+
+export const getBudgets = async (userId, mes, anio) => {
+  return await db.getAllAsync(
+    "SELECT * FROM presupuestos WHERE user_id = ? AND mes = ? AND anio = ?;",
+    [userId, mes, anio]
+  );
 };

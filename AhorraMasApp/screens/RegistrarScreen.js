@@ -1,298 +1,139 @@
-import React, { useState } from "react";
-import {
-  Text,
-  StyleSheet,
-  View,
-  SafeAreaView,
-  ImageBackground,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  Image,
-  Switch,
-} from "react-native";
-import { registerUser } from "../services/DBService";
+import React, { useState } from 'react';
+import { 
+  Text, StyleSheet, View, SafeAreaView, ImageBackground, 
+  TextInput, TouchableOpacity, Alert, Image, Switch, 
+  KeyboardAvoidingView, Platform, ScrollView 
+} from 'react-native';
+import { registerUser } from '../services/DBService'; 
 
-export default function RegistrarScreen({navigation}) {
-  const [correo, setCorreo] = useState("");
-  const [contrasena, setContrasena] = useState("");
-  const [nombre, setNombre] = useState("");
-  const [telefono, setTelefono] = useState("");
+export default function RegistrarScreen({ navigation }) {
+  const [correo, setCorreo] = useState('');
+  const [contrasena, setContrasena] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [telefono, setTelefono] = useState('');
   const [isAccepted, setIsAccepted] = useState(false);
 
-  const iniciarSesion = () => {
-    if (nombre.trim() === "") {
-      Alert.alert("Error  Por favor Ingresa un Nombre");
-      alert("Error  Por favor Ingresa un Nombre");
-
+  const handleRegister = async () => {
+    if(nombre.trim() === '' || correo.trim() === '' || contrasena.trim() === '' || telefono.trim() === '') {
+      Alert.alert("Error", "Por favor completa todos los campos");
       return;
     }
-    if (correo.trim() === "") {
-      Alert.alert("Error  Por favor Ingresa un Correo");
-      alert("Error  Por favor Ingresa un Correo");
-
-      return;
-    }
-    if (contrasena.trim() === "") {
-      Alert.alert("Error  Por favor Ingresa una Contraseña");
-      alert("Error  Por favor Ingresa una Contraseña");
-
-      return;
-    }
-    if (telefono.trim() === "") {
-      Alert.alert("Error  Por favor Ingresa un número  de telefono");
-      alert("Error  Por favor Ingresa un número  de telefono");
-
-      return;
-    }
+    
     const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!correoRegex.test(correo)) {
-      alert("'Por favor, Ingresa una dirección de correo válida");
-      Alert.alert("Por favor, Ingresa una dirección de correo válida");
-      return;
+    if(!correoRegex.test(correo)){
+       Alert.alert("Error", "Ingresa un correo válido");
+       return;
     }
+    
     if (!isAccepted) {
-      Alert.alert("Error", "Debes aceptar los términos y condiciones");
-      alert("Error, Debes aceptar los términos y condiciones");
-      return;
-    } else {
-      registerUser(nombre, correo, telefono, contrasena)
-        .then(() => {
-          Alert.alert("Éxito", "Usuario creado correctamente");
-          navigation.navigate("Login"); // Asegúrate de recibir {navigation} en props
-        })
-        .catch((err) =>
-          Alert.alert(
-            "Error",
-            "No se pudo registrar el usuario (email duplicado?)"
-          )
-        );
+       Alert.alert('Error', 'Debes aceptar los términos y condiciones');
+       return;
     }
-    setNombre("");
-    setCorreo("");
-    setContrasena("");
-    setContrasena("");
-    setTelefono("");
-    setIsAccepted(false);
+
+    try {
+      await registerUser(nombre, correo, telefono, contrasena);
+      Alert.alert("¡Éxito!", "Tu cuenta ha sido creada.", [
+        { text: "Ir a Iniciar Sesión", onPress: () => navigation.navigate('Login') }
+      ]);
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Error", "No se pudo registrar. Verifica si el correo ya existe.");
+    }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ImageBackground
-        source={require("../assets/fondo.png")}
-        style={styles.background}
-        resizeMode="repeat"
-      >
-        <View style={styles.card}>
-          <View style={styles.iconContainer}>
-            <Image
-              source={require("../assets/piglogo.png")}
-              style={styles.icono}
-            />
-          </View>
+    <ImageBackground source={require('../assets/fondo.png')} style={styles.background} resizeMode="cover">
+      <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{flex:1}}>
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <View style={styles.card}>
+              
+              <View style={styles.header}>
+                <Image source={require('../assets/piglogo.png')} style={styles.logo} />
+                <Text style={styles.titulo}>Crear Cuenta</Text>
+                <Text style={styles.subtitulo}>Únete a Ahorra +App</Text>
+              </View>
 
-          <Text style={styles.titulo}>Ahorra +App</Text>
-          <Text style={styles.subtitulo}>Gestiona tus finanzas personales</Text>
+              <TextInput style={styles.input} placeholder="Nombre completo" placeholderTextColor="#999" value={nombre} onChangeText={setNombre} />
+              <TextInput style={styles.input} placeholder="Correo electrónico" placeholderTextColor="#999" value={correo} onChangeText={setCorreo} keyboardType="email-address" autoCapitalize="none" />
+              <TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor="#999" value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
+              <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor="#999" secureTextEntry value={contrasena} onChangeText={setContrasena} />
 
-          <Text style={styles.subtitulo}>Ya tienes una cuenta:</Text>
+              <View style={styles.switchContainer}>
+                <Text style={styles.switchLabel}>Acepto los términos y condiciones</Text>
+                <Switch value={isAccepted} onValueChange={setIsAccepted} trackColor={{ false: "#E5E7EB", true: "#A7F3D0" }} thumbColor={isAccepted ? "#0D7A43" : "#f4f3f4"} />
+              </View>
+              
+              <TouchableOpacity style={styles.button} onPress={handleRegister} activeOpacity={0.8}>
+                <Text style={styles.buttonText}>Registrarme</Text>
+              </TouchableOpacity>
 
-          <View style={styles.tabContainer}>
-            <TouchableOpacity style={styles.tabRegis}>
-              <Text style={styles.socialText}>Inicia Sesión</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.subtitulo2}>Registrarse</Text>
+              {/* Botón para ir al Login */}
+              <View style={styles.footerContainer}>
+                <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={styles.linkText}>Inicia Sesión</Text>
+                </TouchableOpacity>
+              </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Nombre completo"
-            placeholderTextColor="#999"
-            value={nombre}
-            onChangeText={setNombre}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Correo electrónico"
-            placeholderTextColor="#999"
-            value={correo}
-            onChangeText={setCorreo}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Crea una contraseña"
-            placeholderTextColor="#999"
-            secureTextEntry
-            value={contrasena}
-            onChangeText={setContrasena}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Telefono"
-            placeholderTextColor="#999"
-            value={telefono}
-            onChangeText={setTelefono}
-          />
-
-          <Text style={styles.switchLabel}>Aceptar términos y condiciones</Text>
-          <View style={styles.switchContainer}>
-            <Switch
-              value={isAccepted}
-              onValueChange={setIsAccepted}
-              thumbColor={isAccepted ? "#1F7A55" : "#ccc"}
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.BotonInicio}
-            onPress={iniciarSesion}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.TextBoton}>Inicia Sesión</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.socialText}>----------o-----------</Text>
-          <Text style={styles.socialText}>Registrate con:</Text>
-
-          <View style={styles.socialContainer}>
-            <TouchableOpacity style={styles.socialIcon}>
-              <Image
-                source={require("../assets/flogo.png")}
-                style={styles.icono}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialIcon}>
-              <Image
-                source={require("../assets/glogo.png")}
-                style={styles.icono}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialIcon}>
-              <Image
-                source={require("../assets/xlogo.png")}
-                style={styles.icono}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ImageBackground>
-    </SafeAreaView>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#CFF6DD",
-  },
+  background: { flex: 1 },
+  scrollContent: { flexGrow: 1, justifyContent: 'center', padding: 20 },
   card: {
-    backgroundColor: "#ffffffa8",
-    width: "85%",
-    borderRadius: 20,
-    padding: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
     elevation: 5,
   },
-  iconContainer: {
-    backgroundColor: "#DFFBEA",
-    padding: 10,
-    borderRadius: 50,
-    marginBottom: 10,
-  },
-  titulo: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#21825C",
-    textAlign: "center",
-  },
-  subtitulo: {
-    color: "#666",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  subtitulo2: {
-    fontSize: 22,
-    color: "#21825C",
-    marginBottom: 20,
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-  tabContainer: {
-    flexDirection: "row",
-    backgroundColor: "#e8e8e833",
-    borderRadius: 25,
-    marginBottom: 20,
-    width: "100%",
-  },
-  tabRegis: {
-    flex: 1,
-    borderRadius: 24,
-    alignItems: "center",
-    backgroundColor: "#ffffff3d",
-  },
-  tabActive: {
-    backgroundColor: "#fff",
-  },
-
+  header: { alignItems: 'center', marginBottom: 24 },
+  logo: { width: 50, height: 50, tintColor: '#0D7A43', marginBottom: 10 },
+  titulo: { fontSize: 24, fontWeight: 'bold', color: '#1F2937' },
+  subtitulo: { fontSize: 14, color: '#6B7280' },
   input: {
-    width: "100%",
-    height: 45,
-    backgroundColor: "#E8E8E8",
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-  },
-  Contra: {
-    color: "#007BFF",
-    fontSize: 14,
-    alignSelf: "stretch",
-    marginBottom: 15,
-  },
-  BotonInicio: {
-    backgroundColor: "#437C68",
-    paddingVertical: 12,
-    borderRadius: 10,
-    width: "100%",
-  },
-  TextBoton: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-
-  socialText: {
-    marginBottom: 15,
-    color: "#333",
-    fontWeight: "500",
-  },
-  socialContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "60%",
-  },
-  socialIcon: {
-    backgroundColor: "#ffffff54",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 3,
-  },
-  icono: {
-    width: 30,
-    height: 30,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    color: '#1F2937',
   },
   switchContainer: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
   },
-  switchLabel: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: "#253121ff",
+  switchLabel: { fontSize: 14, color: '#4B5563' },
+  button: {
+    backgroundColor: '#0D7A43',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    shadowColor: "#0D7A43",
+    shadowOpacity: 0.3,
+    elevation: 4,
   },
+  buttonText: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 24,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  footerText: { color: '#6B7280', fontSize: 15 },
+  linkText: { color: '#0D7A43', fontWeight: 'bold', fontSize: 15 },
 });
