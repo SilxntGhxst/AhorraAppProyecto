@@ -1,6 +1,5 @@
 import * as SQLite from "expo-sqlite";
 
-// Usar la nueva API síncrona (compatible con Expo 51+)
 const db = SQLite.openDatabaseSync("ahorraapp.db");
 
 export const initDB = async () => {
@@ -8,15 +7,14 @@ export const initDB = async () => {
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, email TEXT UNIQUE, telefono TEXT, password TEXT);
       CREATE TABLE IF NOT EXISTS transacciones (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, titulo TEXT, categoria TEXT, fecha TEXT, monto REAL, tipo TEXT, FOREIGN KEY (user_id) REFERENCES usuarios(id));
-      CREATE TABLE IF NOT EXISTS presupuestos (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, categoria TEXT, monto_limite REAL, monto_gastado REAL, mes TEXT, anio TEXT, FOREIGN KEY (user_id) REFERENCES usuarios(id));
+      CREATE TABLE IF NOT EXISTS presupuestos (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, categoria TEXT, monto_limite REAL, mes TEXT, anio TEXT, FOREIGN KEY (user_id) REFERENCES usuarios(id));
     `);
   } catch (error) {
-    console.error("Error initDB:", error);
+    console.error("DB Init Error:", error);
   }
 };
 
 // --- USUARIOS ---
-
 export const registerUser = async (nombre, email, telefono, password) => {
   return await db.runAsync(
     "INSERT INTO usuarios (nombre, email, telefono, password) VALUES (?, ?, ?, ?);",
@@ -31,30 +29,16 @@ export const findUser = async (email, password) => {
   );
 };
 
-// ✅ FUNCIÓN FALTANTE AGREGADA
-export const findUserByEmail = async (email) => {
-  return await db.getFirstAsync("SELECT * FROM usuarios WHERE email = ?;", [
-    email,
-  ]);
+export const checkEmailExists = async (email) => {
+  return await db.getFirstAsync("SELECT * FROM usuarios WHERE email = ?;", [email]);
 };
 
-// ✅ NUEVA FUNCIÓN PARA ACTUALIZAR CONTRASEÑA
 export const updateUserPassword = async (email, newPassword) => {
-  return await db.runAsync(
-    "UPDATE usuarios SET password = ? WHERE email = ?;",
-    [newPassword, email]
-  );
+  return await db.runAsync("UPDATE usuarios SET password = ? WHERE email = ?;", [newPassword, email]);
 };
 
 // --- TRANSACCIONES ---
-export const addTransaction = async (
-  userId,
-  titulo,
-  categoria,
-  fecha,
-  monto,
-  tipo
-) => {
+export const addTransaction = async (userId, titulo, categoria, fecha, monto, tipo) => {
   return await db.runAsync(
     "INSERT INTO transacciones (user_id, titulo, categoria, fecha, monto, tipo) VALUES (?, ?, ?, ?, ?, ?);",
     [userId, titulo, categoria, fecha, monto, tipo]
@@ -68,14 +52,7 @@ export const getTransactions = async (userId) => {
   );
 };
 
-export const updateTransaction = async (
-  id,
-  titulo,
-  categoria,
-  fecha,
-  monto,
-  tipo
-) => {
+export const updateTransaction = async (id, titulo, categoria, fecha, monto, tipo) => {
   return await db.runAsync(
     "UPDATE transacciones SET titulo = ?, categoria = ?, fecha = ?, monto = ?, tipo = ? WHERE id = ?;",
     [titulo, categoria, fecha, monto, tipo, id]
@@ -89,14 +66,44 @@ export const deleteTransaction = async (id) => {
 // --- PRESUPUESTOS ---
 export const addBudget = async (userId, categoria, montoLimite, mes, anio) => {
   return await db.runAsync(
-    "INSERT INTO presupuestos (user_id, categoria, monto_limite, monto_gastado, mes, anio) VALUES (?, ?, ?, 0, ?, ?);",
+    "INSERT INTO presupuestos (user_id, categoria, monto_limite, mes, anio) VALUES (?, ?, ?, ?, ?);",
     [userId, categoria, montoLimite, mes, anio]
   );
 };
 
 export const getBudgets = async (userId, mes, anio) => {
-  return await db.getAllAsync(
+  // Obtenemos los presupuestos definidos
+  const budgets = await db.getAllAsync(
     "SELECT * FROM presupuestos WHERE user_id = ? AND mes = ? AND anio = ?;",
     [userId, mes, anio]
   );
+
+  // Obtenemos todas las transacciones para calcular el gasto real
+  const transactions = await getTransactions(userId);
+
+  // Calculamos cuánto se ha gastado por categoría
+  const budgetsWithSpent = budgets.map(b => {
+    const spent = transactions
+      .filter(t => 
+        t.tipo === 'expense' && 
+        t.categoria.toLowerCase() === b.categoria.toLowerCase() &&
+        t.fecha.includes(mes) && t.fecha.includes(anio) // Filtro simple por fecha string
+      )
+      .reduce((sum, t) => sum + Math.abs(t.monto), 0);
+    
+    return { ...b, monto_gastado: spent };
+  });
+
+  return budgetsWithSpent;
+};
+
+export const updateBudget = async (id, categoria, montoLimite) => {
+  return await db.runAsync(
+    "UPDATE presupuestos SET categoria = ?, monto_limite = ? WHERE id = ?;",
+    [categoria, montoLimite, id]
+  );
+};
+
+export const deleteBudget = async (id) => {
+  return await db.runAsync("DELETE FROM presupuestos WHERE id = ?;", [id]);
 };
