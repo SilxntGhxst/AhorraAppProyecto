@@ -14,11 +14,13 @@ import {
   ScrollView
 } from "react-native";
 import { findUser } from '../services/DBService';
+import { UsuarioController } from '../controllers/UsuarioController';
 import * as SecureStore from 'expo-secure-store';
 
 export default function IniciarSesionScreen({ navigation }) { 
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
+  const userController = new UsuarioController();
 
   const iniciarSesion = async () => {
     if (correo.trim() === "") {
@@ -32,7 +34,7 @@ export default function IniciarSesionScreen({ navigation }) {
 
     try {
       // Verificación real en la base de datos
-      const user = await findUser(correo, contrasena);
+      const user = await userController.login(correo, contrasena);
       
       if (user) {
         await SecureStore.setItemAsync('user_id', user.id.toString());
@@ -47,6 +49,7 @@ export default function IniciarSesionScreen({ navigation }) {
       console.log(error);
       Alert.alert("Error", "Ocurrió un problema al intentar iniciar sesión.");
     }
+    
   };
 
   return (
