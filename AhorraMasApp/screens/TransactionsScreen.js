@@ -8,8 +8,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import { getTransactions, addTransaction, deleteTransaction, updateTransaction } from '../services/DBService';
+import { TransaccionController } from '../controllers/TransaccionController';
 
 const TransactionsScreen = ({ navigation }) => { // Añadir navigation prop
+  
   const [userName, setUserName] = useState('Usuario'); // Estado para nombre
   
   const [allTransactions, setAllTransactions] = useState([]);
@@ -24,6 +26,7 @@ const TransactionsScreen = ({ navigation }) => { // Añadir navigation prop
   const [newAmount, setNewAmount] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [newType, setNewType] = useState('expense');
+  const transactionController = new TransaccionController();
 
   const getUserId = async () => {
     let userId = await SecureStore.getItemAsync('user_id');
@@ -32,16 +35,14 @@ const TransactionsScreen = ({ navigation }) => { // Añadir navigation prop
   };
 
   const loadData = async () => {
-    try {
+   try {
       const userId = await getUserId();
-      // Cargar nombre de usuario
-      const name = await SecureStore.getItemAsync('user_name');
-      if (name) setUserName(name.split(' ')[0]);
-
-      const data = await getTransactions(userId);
+      const data = await transactionController.obtenerTodas(userId); // <--- USO DEL CONTROLADOR
       setAllTransactions(data);
       applyFilters(data, searchText, filterType); 
-    } catch (error) { console.error(error); }
+    } catch (error) { 
+      console.error(error);
+     }
   };
 
   useFocusEffect(useCallback(() => { loadData(); }, []));
@@ -70,8 +71,9 @@ const TransactionsScreen = ({ navigation }) => { // Añadir navigation prop
       if (isNaN(montoNum)) { Alert.alert("Error", "Monto inválido"); return; }
       const montoFinal = Math.abs(montoNum) * (newType === 'expense' ? -1 : 1);
 
-      if (editingId) await updateTransaction(editingId, newTitle, newCategory, fecha, montoFinal, newType);
-      else await addTransaction(userId, newTitle, newCategory, fecha, montoFinal, newType);
+      if (editingId) 
+        await transactionController.actualizar(editingId, newTitle, newCategory, fecha, montoFinal, newType);
+      else await transactionController.agregar(userId, newTitle, newCategory, fecha, montoFinal, newType);
       
       setModalVisible(false);
       resetForm();
@@ -80,7 +82,7 @@ const TransactionsScreen = ({ navigation }) => { // Añadir navigation prop
   };
 
   const handleDelete = (id) => {
-    Alert.alert("Eliminar", "¿Borrar transacción?", [{ text: "Cancelar", style: "cancel" }, { text: "Eliminar", style: "destructive", onPress: async () => { await deleteTransaction(id); loadData(); } }]);
+    Alert.alert("Eliminar", "¿Borrar transacción?", [{ text: "Cancelar", style: "cancel" }, { text: "Eliminar", style: "destructive", onPress: async () => { await transactionController.eliminar(id); loadData(); } }]);
   };
 
   const openModalForEdit = (t) => {

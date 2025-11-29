@@ -6,10 +6,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import { getBudgets, addBudget, updateBudget, deleteBudget } from '../services/DBService';
+import { PresupuestoController } from '../controllers/PresupuestoController';
 
 const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
 export default function PresupuestosMensuales({ navigation }) {
+  const presupuestoController = new PresupuestoController();
   const [userName, setUserName] = useState('Usuario');
   
   const now = new Date();
@@ -26,13 +28,10 @@ export default function PresupuestosMensuales({ navigation }) {
   const loadData = async () => {
     try {
       const userId = await SecureStore.getItemAsync('user_id');
-      const name = await SecureStore.getItemAsync('user_name');
-      if (name) setUserName(name.split(' ')[0]);
-
       if (userId) {
         const mesNombre = getMonthName(currentMonthIndex);
         const anioStr = currentYear.toString();
-        const data = await getBudgets(userId, mesNombre, anioStr);
+        const data = await presupuestoController.obtenerConGasto(userId, mesNombre, anioStr); // <--- USO DEL CONTROLADOR
         setBudgets(data);
       }
     } catch (error) { console.error(error); }
@@ -47,21 +46,66 @@ export default function PresupuestosMensuales({ navigation }) {
     setCurrentMonthIndex(newIndex); setCurrentYear(newYear);
   };
 
-  const handleSave = async () => {
-    if (!category.trim() || !limit.trim()) { Alert.alert("Error", "Completa los campos"); return; }
-    try {
-      const userId = await SecureStore.getItemAsync('user_id');
-      const mesNombre = getMonthName(currentMonthIndex);
-      const anioStr = currentYear.toString();
-      if (editingId) await updateBudget(editingId, category, parseFloat(limit));
-      else await addBudget(userId, category, parseFloat(limit), mesNombre, anioStr);
-      setModalVisible(false); setCategory(''); setLimit(''); setEditingId(null); loadData();
-    } catch (e) { Alert.alert("Error", "No se pudo guardar"); }
-  };
+const handleSave = async () => {
+  if (!category.trim() || !limit.trim()) {
+    Alert.alert("Error", "Completa los campos");
+    return;
+  }
 
-  const handleDelete = (id) => {
-    Alert.alert("Eliminar", "¿Borrar presupuesto?", [{ text: "Cancelar" }, { text: "Eliminar", style: "destructive", onPress: async () => { await deleteBudget(id); loadData(); } }]);
-  };
+  try {
+    const userId = await SecureStore.getItemAsync('user_id');
+    const mesNombre = getMonthName(currentMonthIndex);
+    const anioStr = currentYear.toString();
+
+    if (editingId) {
+     
+      await presupuestoController.actualizar(
+        editingId,
+        category,
+        parseFloat(limit)
+      );
+    } else {
+      
+      await presupuestoController.agregar(
+        userId,
+        category,
+        parseFloat(limit),
+        mesNombre,
+        anioStr
+      );
+    }
+
+    setModalVisible(false);
+    setCategory('');
+    setLimit('');
+    setEditingId(null);
+    loadData();
+
+  } catch (e) {
+    Alert.alert("Error", "No se pudo guardar");
+  }
+};
+
+
+ const handleDelete = (id) => {
+  Alert.alert(
+    "Eliminar",
+    "¿Borrar presupuesto?",
+    [
+      { text: "Cancelar" },
+      {
+        text: "Eliminar",
+        style: "destructive",
+        onPress: async () => {
+          
+          await presupuestoController.eliminar(id);
+          loadData();
+        }
+      }
+    ]
+  );
+};
+
 
   const openEdit = (item) => { setEditingId(item.id); setCategory(item.categoria); setLimit(item.monto_limite.toString()); setModalVisible(true); };
   const formatMoney = (val) => `$${val.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`;

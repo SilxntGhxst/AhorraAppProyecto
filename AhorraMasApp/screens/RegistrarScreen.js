@@ -5,13 +5,16 @@ import {
   KeyboardAvoidingView, Platform, ScrollView 
 } from 'react-native';
 import { registerUser } from '../services/DBService'; 
+import { UsuarioController } from '../controllers/UsuarioController';
 
 export default function RegistrarScreen({ navigation }) {
+  
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [isAccepted, setIsAccepted] = useState(false);
+  const userController = new UsuarioController();
 
   const handleRegister = async () => {
     if(nombre.trim() === '' || correo.trim() === '' || contrasena.trim() === '' || telefono.trim() === '') {
@@ -31,13 +34,11 @@ export default function RegistrarScreen({ navigation }) {
     }
 
     try {
-      await registerUser(nombre, correo, telefono, contrasena);
-      Alert.alert("¡Éxito!", "Tu cuenta ha sido creada.", [
-        { text: "Ir a Iniciar Sesión", onPress: () => navigation.navigate('Login') }
-      ]);
+      await userController.registrar(nombre, correo, telefono, contrasena); // <--- USO DEL CONTROLADOR
+      Alert.alert("¡Éxito!", "Cuenta creada.", [{ text: "Ir al Login", onPress: () => navigation.navigate('Login') }]);
     } catch (err) {
       console.log(err);
-      Alert.alert("Error", "No se pudo registrar. Verifica si el correo ya existe.");
+      Alert.alert("Error", "No se pudo registrar (posible correo duplicado).");
     }
   };
 
