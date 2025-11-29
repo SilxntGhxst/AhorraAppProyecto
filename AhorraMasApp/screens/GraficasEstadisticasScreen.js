@@ -8,7 +8,10 @@ import { PieChart } from "react-native-chart-kit";
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import { getTransactions, getBudgets } from '../services/DBService';
+
+// 1. IMPORTAR CONTROLADORES
+import { TransaccionController } from '../controllers/TransaccionController';
+import { PresupuestoController } from '../controllers/PresupuestoController';
 
 const screenWidth = Dimensions.get("window").width;
 const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -22,6 +25,10 @@ export default function GraficasEstadisticasScreen({ navigation }) {
   const [chartData, setChartData] = useState([]);
   const [totalGastos, setTotalGastos] = useState(0);
   const [budgetAnalysis, setBudgetAnalysis] = useState([]);
+
+  // 2. INSTANCIAR CONTROLADORES
+  const transaccionController = new TransaccionController();
+  const presupuestoController = new PresupuestoController();
 
   const getMonthName = (index) => months[index];
 
@@ -41,8 +48,13 @@ export default function GraficasEstadisticasScreen({ navigation }) {
       if (userId) {
         const mesNombre = getMonthName(currentMonthIndex);
         const anioStr = currentYear.toString();
-        const allTransactions = await getTransactions(userId);
-        const filteredTrans = allTransactions.filter(t => (t.tipo === 'expense' || t.monto < 0) && t.fecha.includes(mesNombre) && t.fecha.includes(anioStr));
+
+        // 3. OBTENER DATOS VIA CONTROLADOR
+        const allTransactions = await transaccionController.obtenerTodas(userId);
+        const filteredTrans = allTransactions.filter(t => 
+          (t.tipo === 'expense' || t.monto < 0) &&
+          t.fecha.includes(mesNombre) && t.fecha.includes(anioStr)
+        );
 
         const categoryMap = {};
         let total = 0;
@@ -60,7 +72,9 @@ export default function GraficasEstadisticasScreen({ navigation }) {
 
         setChartData(data);
         setTotalGastos(total);
-        const budgets = await getBudgets(userId, mesNombre, anioStr);
+        
+        // 4. OBTENER PRESUPUESTOS
+        const budgets = await presupuestoController.obtenerConGasto(userId, mesNombre, anioStr);
         setBudgetAnalysis(budgets);
       }
     } catch (error) { console.error(error); }
@@ -139,7 +153,6 @@ export default function GraficasEstadisticasScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E8F3EC' },
-  // ESTILOS HEADER COMPARTIDOS
   header: { backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingVertical: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#E0E0E0', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05 },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   logoIcon: { width: 40, height: 40, marginRight: 12 },

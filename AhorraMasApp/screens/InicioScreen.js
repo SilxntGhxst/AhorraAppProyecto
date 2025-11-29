@@ -1,19 +1,15 @@
 import React, { useState, useCallback } from 'react';
 import { 
-  ScrollView, 
-  View, 
-  Text, 
-  Image, 
-  StyleSheet, 
-  TouchableOpacity, 
-  StatusBar, 
-  Platform 
+  ScrollView, View, Text, Image, StyleSheet, TouchableOpacity, StatusBar 
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'; // Importante para evitar invasión de status bar
+import { SafeAreaView } from 'react-native-safe-area-context'; 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-import { getTransactions, getBudgets } from '../services/DBService';
+
+// 1. IMPORTAR LOS NUEVOS CONTROLADORES
+import { TransaccionController } from '../controllers/TransaccionController';
+import { PresupuestoController } from '../controllers/PresupuestoController';
 
 export default function AhorraAppScreen({ navigation }) {
   const [userName, setUserName] = useState('Usuario');
@@ -23,6 +19,10 @@ export default function AhorraAppScreen({ navigation }) {
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
 
+  // 2. INSTANCIAR CONTROLADORES
+  const transaccionController = new TransaccionController();
+  const presupuestoController = new PresupuestoController();
+
   const loadDashboardData = async () => {
     try {
       const userId = await SecureStore.getItemAsync('user_id');
@@ -30,12 +30,13 @@ export default function AhorraAppScreen({ navigation }) {
       if (name) setUserName(name.split(' ')[0]);
 
       if (userId) {
-        const allTransactions = await getTransactions(userId);
+        // 3. USAR EL CONTROLADOR DE TRANSACCIONES
+        const allTransactions = await transaccionController.obtenerTodas(userId);
+        
         let totalIng = 0;
         let totalGas = 0;
 
         allTransactions.forEach(t => {
-          // Lógica de cálculo: 'income' o monto positivo
           if (t.tipo === 'income' || (t.monto > 0 && t.tipo !== 'expense')) {
             totalIng += Math.abs(t.monto);
           } else {
@@ -48,8 +49,9 @@ export default function AhorraAppScreen({ navigation }) {
         setBalance(totalIng - totalGas);
         setRecentTransactions(allTransactions.slice(0, 5));
 
-        // Cargar presupuestos (mes actual hardcodeado o dinámico)
-        const allBudgets = await getBudgets(userId, "Septiembre", "2025");
+        // 4. USAR EL CONTROLADOR DE PRESUPUESTOS
+        // (Calcula automáticamente el gasto real gracias a la lógica que pusimos en el controlador)
+        const allBudgets = await presupuestoController.obtenerConGasto(userId, "Septiembre", "2025");
         setBudgets(allBudgets);
       }
     } catch (error) { console.error(error); }
@@ -63,13 +65,9 @@ export default function AhorraAppScreen({ navigation }) {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}> 
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       
-      {/* HEADER */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>     
-          <Image
-            source={require('../assets/Puerquito2.jpg')}
-            style={styles.logoIcon}
-          />
+          <Image source={require('../assets/Puerquito2.jpg')} style={styles.logoIcon} />
           <View>
             <Text style={styles.greeting}>Hola, {userName}</Text>
             <Text style={styles.subGreeting}>Ahorra +App</Text>
@@ -81,13 +79,9 @@ export default function AhorraAppScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
-        style={styles.scroll} 
-        contentContainerStyle={styles.scrollContent} 
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* TARJETA PRINCIPAL DE BALANCE */}
+        {/* TARJETA PRINCIPAL */}
         <View style={styles.balanceCard}>
           <View style={styles.balanceHeader}>
             <Text style={styles.balanceLabel}>Balance Total</Text>
@@ -227,278 +221,49 @@ export default function AhorraAppScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#E8F3EC' // Tu color de fondo original
-  },
-  header: { 
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  logoIcon: {
-    width: 40,
-    height: 40,
-    marginRight: 12,
-  },
-  greeting: { 
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    color: '#1F2937' 
-  },
-  subGreeting: { 
-    fontSize: 13, 
-    color: '#0D7A43', // Verde Institucional
-    fontWeight: '600'
-  },
-  profileButton: {
-    padding: 4,
-  },
-  scroll: { 
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 100, // ESPACIO EXTRA PARA QUE NO SE CORTE CON EL NAV BAR
-  },
-  
-  // TARJETA DE BALANCE (Estilo mejorado pero colores acordes)
-  balanceCard: { 
-    backgroundColor: '#0D7A43', // Verde Institucional
-    borderRadius: 20, 
-    padding: 20, 
-    marginBottom: 24, 
-    shadowColor: '#0D7A43', 
-    shadowOffset: {width: 0, height: 4}, 
-    shadowOpacity: 0.3, 
-    elevation: 8 
-  },
-  balanceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8
-  },
-  balanceLabel: { 
-    color: 'rgba(255,255,255,0.9)', 
-    fontSize: 14, 
-    fontWeight: '500'
-  },
-  balanceAmount: { 
-    color: '#FFF', 
-    fontSize: 34, 
-    fontWeight: '800', 
-    marginBottom: 20 
-  },
-  balanceRow: { 
-    flexDirection: 'row', 
-    backgroundColor: 'rgba(255,255,255,0.15)', 
-    borderRadius: 16, 
-    padding: 12 
-  },
-  balanceItem: { 
-    flex: 1, 
-    flexDirection: 'row', 
-    alignItems: 'center',
-    justifyContent: 'center' 
-  },
-  iconCircle: { 
-    width: 32, 
-    height: 32, 
-    borderRadius: 16, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginRight: 8 
-  },
-  balanceItemLabel: { 
-    color: 'rgba(255,255,255,0.8)', 
-    fontSize: 11 
-  },
-  balanceItemValue: { 
-    color: '#FFF', 
-    fontSize: 14, 
-    fontWeight: '700' 
-  },
-  divider: { 
-    width: 1, 
-    backgroundColor: 'rgba(255,255,255,0.3)', 
-    marginHorizontal: 10,
-    height: '80%',
-    alignSelf: 'center'
-  },
-
-  // ACCESOS RÁPIDOS
-  sectionTitle: { 
-    fontSize: 18, 
-    fontWeight: '700', 
-    color: '#1F2937',
-    marginBottom: 12
-  },
-  quickAccessRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    marginBottom: 24 
-  },
-  quickBtn: { 
-    width: '31%', 
-    backgroundColor: '#FFFFFF', 
-    paddingVertical: 15, 
-    borderRadius: 16, 
-    alignItems: 'center', 
-    shadowColor: '#000', 
-    shadowOpacity: 0.05, 
-    elevation: 3 
-  },
-  quickIcon: { 
-    width: 48, 
-    height: 48, 
-    borderRadius: 24, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginBottom: 8 
-  },
-  quickText: { 
-    fontSize: 12, 
-    fontWeight: '600', 
-    color: '#374151' 
-  },
-
-  // SECCIONES Y ENCABEZADOS
-  sectionHeader: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    marginBottom: 12,
-    marginTop: 8
-  },
-  seeAll: { 
-    color: '#0D7A43', 
-    fontWeight: '600', 
-    fontSize: 14 
-  },
-
-  // TARJETAS DE PRESUPUESTO
-  budgetCard: { 
-    backgroundColor: '#FFFFFF', 
-    borderRadius: 16, 
-    padding: 16, 
-    marginBottom: 12, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.03, 
-    elevation: 2 
-  },
-  budgetHeaderRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    marginBottom: 8 
-  },
-  budgetTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8
-  },
-  budgetCategory: { 
-    fontWeight: '700', 
-    color: '#374151',
-    fontSize: 15
-  },
-  budgetPercent: { 
-    fontWeight: '700', 
-    fontSize: 14
-  },
-  progressBarBg: { 
-    height: 8, 
-    backgroundColor: '#F3F4F6', 
-    borderRadius: 4, 
-    marginBottom: 8,
-    overflow: 'hidden'
-  },
-  progressBarFill: { 
-    height: '100%', 
-    borderRadius: 4 
-  },
-  budgetFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  budgetDetails: { 
-    fontSize: 12, 
-    color: '#9CA3AF' 
-  },
-
-  // LISTA DE TRANSACCIONES
-  transactionsContainer: { 
-    backgroundColor: '#FFFFFF', 
-    borderRadius: 20, 
-    padding: 5,
-    shadowColor: '#000', 
-    shadowOpacity: 0.03, 
-    elevation: 2 
-  },
-  transactionRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 15, 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#F3F4F6' 
-  },
-  transIconBg: { 
-    width: 42, 
-    height: 42, 
-    borderRadius: 21, 
-    backgroundColor: '#F3F4F6', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginRight: 12 
-  },
-  transInfo: { 
-    flex: 1 
-  },
-  transTitle: { 
-    fontSize: 15, 
-    fontWeight: '600', 
-    color: '#1F2937' 
-  },
-  transDate: { 
-    fontSize: 12, 
-    color: '#9CA3AF',
-    marginTop: 2
-  },
-  transAmount: { 
-    fontSize: 15, 
-    fontWeight: '700' 
-  },
-  emptyCard: { 
-    backgroundColor: '#FFF', 
-    padding: 20, 
-    borderRadius: 16, 
-    alignItems: 'center', 
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderStyle: 'dashed'
-  },
-  emptyText: { 
-    color: '#9CA3AF', 
-    fontStyle: 'italic' 
-  }
+  container: { flex: 1, backgroundColor: '#E8F3EC' },
+  header: { backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingVertical: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#E0E0E0', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  logoIcon: { width: 40, height: 40, marginRight: 12 },
+  greeting: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
+  subGreeting: { fontSize: 13, color: '#0D7A43', fontWeight: '600' },
+  profileButton: { padding: 4 },
+  scroll: { flex: 1 },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 100 },
+  balanceCard: { backgroundColor: '#0D7A43', borderRadius: 20, padding: 20, marginBottom: 24, shadowColor: '#0D7A43', shadowOffset: {width: 0, height: 4}, shadowOpacity: 0.3, elevation: 8 },
+  balanceHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  balanceLabel: { color: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: '500' },
+  balanceAmount: { color: '#FFF', fontSize: 34, fontWeight: '800', marginBottom: 20 },
+  balanceRow: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 16, padding: 12 },
+  balanceItem: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  iconCircle: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 8 },
+  balanceItemLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 11 },
+  balanceItemValue: { color: '#FFF', fontSize: 14, fontWeight: '700' },
+  divider: { width: 1, backgroundColor: 'rgba(255,255,255,0.3)', marginHorizontal: 10, height: '80%', alignSelf: 'center' },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1F2937', marginBottom: 12 },
+  quickAccessRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
+  quickBtn: { width: '31%', backgroundColor: '#FFFFFF', paddingVertical: 15, borderRadius: 16, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.05, elevation: 3 },
+  quickIcon: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  quickText: { fontSize: 12, fontWeight: '600', color: '#374151' },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, marginTop: 8 },
+  seeAll: { color: '#0D7A43', fontWeight: '600', fontSize: 14 },
+  budgetCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.03, elevation: 2 },
+  budgetHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  budgetTitleContainer: { flexDirection: 'row', alignItems: 'center' },
+  dot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
+  budgetCategory: { fontWeight: '700', color: '#374151', fontSize: 15 },
+  budgetPercent: { fontWeight: '700', fontSize: 14 },
+  progressBarBg: { height: 8, backgroundColor: '#F3F4F6', borderRadius: 4, marginBottom: 8, overflow: 'hidden' },
+  progressBarFill: { height: '100%', borderRadius: 4 },
+  budgetFooter: { flexDirection: 'row', justifyContent: 'space-between' },
+  budgetDetails: { fontSize: 12, color: '#9CA3AF' },
+  transactionsContainer: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 5, shadowColor: '#000', shadowOpacity: 0.03, elevation: 2 },
+  transactionRow: { flexDirection: 'row', alignItems: 'center', padding: 15, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
+  transIconBg: { width: 42, height: 42, borderRadius: 21, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  transInfo: { flex: 1 },
+  transTitle: { fontSize: 15, fontWeight: '600', color: '#1F2937' },
+  transDate: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
+  transAmount: { fontSize: 15, fontWeight: '700' },
+  emptyCard: { backgroundColor: '#FFF', padding: 20, borderRadius: 16, alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: '#E5E7EB', borderStyle: 'dashed' },
+  emptyText: { color: '#9CA3AF', fontStyle: 'italic' }
 });
