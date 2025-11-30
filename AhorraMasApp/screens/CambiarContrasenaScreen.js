@@ -12,12 +12,15 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { updateUserPassword } from "../services/DBService";
+import { UsuarioController } from "../controllers/UsuarioController";
 
 export default function CambiarContrasenaScreen({ route, navigation }) {
-  const { email } = route.params || {}; // Recibimos el email de la pantalla anterior
+  const { email } = route.params || {}; 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+
+  const usuarioController = new UsuarioController();
 
   const handleChangePassword = async () => {
     if (!newPassword.trim() || !confirmPassword.trim()) {
@@ -30,11 +33,12 @@ export default function CambiarContrasenaScreen({ route, navigation }) {
     }
 
     try {
-      await updateUserPassword(email, newPassword);
+      await usuarioController.actualizarPassword(email, newPassword);
+      
       Alert.alert(
         "¡Éxito!",
         "Tu contraseña ha sido actualizada correctamente.",
-        [{ text: "Iniciar Sesión", onPress: () => navigation.popToTop() }] // Vuelve al inicio (Login)
+        [{ text: "Iniciar Sesión", onPress: () => navigation.popToTop() }] 
       );
     } catch (error) {
       console.error(error);

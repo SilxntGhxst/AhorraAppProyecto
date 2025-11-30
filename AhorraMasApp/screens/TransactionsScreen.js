@@ -7,7 +7,6 @@ import { Search, SlidersHorizontal, Edit2, Trash2, TrendingUp, TrendingDown, X, 
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-import { getTransactions, addTransaction, deleteTransaction, updateTransaction } from '../services/DBService';
 import { TransaccionController } from '../controllers/TransaccionController';
 
 const TransactionsScreen = ({ navigation }) => { // Añadir navigation prop

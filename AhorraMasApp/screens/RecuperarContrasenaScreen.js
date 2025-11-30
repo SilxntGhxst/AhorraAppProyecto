@@ -11,10 +11,12 @@ import {
   StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { findUserByEmail } from "../services/DBService";
+import { UsuarioController } from "../controllers/UsuarioController";
 
 export default function RecuperarContrasenaScreen({ navigation }) {
   const [email, setEmail] = useState("");
+
+  const usuarioController = new UsuarioController();
 
   const handleRecover = async () => {
     if (!email.trim()) {
@@ -23,11 +25,9 @@ export default function RecuperarContrasenaScreen({ navigation }) {
     }
 
     try {
-      // 1. Verificar si existe el usuario
-      const user = await findUserByEmail(email);
+      const user = await usuarioController.buscarPorEmail(email);
 
       if (user) {
-        // 2. Simulación de envío de correo
         Alert.alert(
           "Correo Enviado",
           `Se ha enviado un enlace de recuperación a ${email}.\n\nPresiona OK para continuar y crear tu nueva contraseña.`,
@@ -35,7 +35,6 @@ export default function RecuperarContrasenaScreen({ navigation }) {
             {
               text: "OK",
               onPress: () => {
-                // 3. Navegar a la pantalla de cambio pasando el email
                 navigation.navigate("CambiarContrasena", { email: email });
               },
             },

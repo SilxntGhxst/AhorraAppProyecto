@@ -13,7 +13,6 @@ import {
   Platform,
   ScrollView
 } from "react-native";
-import { findUser } from '../services/DBService';
 import { UsuarioController } from '../controllers/UsuarioController';
 import * as SecureStore from 'expo-secure-store';
 

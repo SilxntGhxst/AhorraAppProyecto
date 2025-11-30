@@ -4,7 +4,6 @@ import {
   TextInput, TouchableOpacity, Alert, Image, Switch, 
   KeyboardAvoidingView, Platform, ScrollView 
 } from 'react-native';
-import { registerUser } from '../services/DBService'; 
 import { UsuarioController } from '../controllers/UsuarioController';
 
 export default function RegistrarScreen({ navigation }) {

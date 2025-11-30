@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight, Plus, Edit2, Trash2, X } from 'lucide-react-
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-import { getBudgets, addBudget, updateBudget, deleteBudget } from '../services/DBService';
 import { PresupuestoController } from '../controllers/PresupuestoController';
 
 const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
