@@ -4,10 +4,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context'; 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AlertTriangle } from 'lucide-react-native'; 
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 
-// 1. IMPORTAR LOS NUEVOS CONTROLADORES
 import { TransaccionController } from '../controllers/TransaccionController';
 import { PresupuestoController } from '../controllers/PresupuestoController';
 
@@ -19,7 +19,6 @@ export default function AhorraAppScreen({ navigation }) {
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
 
-  // 2. INSTANCIAR CONTROLADORES
   const transaccionController = new TransaccionController();
   const presupuestoController = new PresupuestoController();
 
@@ -30,7 +29,6 @@ export default function AhorraAppScreen({ navigation }) {
       if (name) setUserName(name.split(' ')[0]);
 
       if (userId) {
-        // 3. USAR EL CONTROLADOR DE TRANSACCIONES
         const allTransactions = await transaccionController.obtenerTodas(userId);
         
         let totalIng = 0;
@@ -47,11 +45,14 @@ export default function AhorraAppScreen({ navigation }) {
         setIncome(totalIng);
         setExpense(totalGas);
         setBalance(totalIng - totalGas);
-        setRecentTransactions(allTransactions.slice(0, 5));
+        setRecentTransactions(allTransactions.slice(0, 5)); 
 
-        // 4. USAR EL CONTROLADOR DE PRESUPUESTOS
-        // (Calcula automáticamente el gasto real gracias a la lógica que pusimos en el controlador)
-        const allBudgets = await presupuestoController.obtenerConGasto(userId, "Septiembre", "2025");
+        const now = new Date();
+        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const mesNombre = months[now.getMonth()];
+        const anioStr = now.getFullYear().toString();
+
+        const allBudgets = await presupuestoController.obtenerConGasto(userId, mesNombre, anioStr);
         setBudgets(allBudgets);
       }
     } catch (error) { console.error(error); }
@@ -81,15 +82,13 @@ export default function AhorraAppScreen({ navigation }) {
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* TARJETA PRINCIPAL */}
+        {/* Balance Card */}
         <View style={styles.balanceCard}>
           <View style={styles.balanceHeader}>
             <Text style={styles.balanceLabel}>Balance Total</Text>
             <Ionicons name="wallet" size={20} color="rgba(255,255,255,0.8)" />
           </View>
-          
           <Text style={styles.balanceAmount}>{formatMoney(balance)}</Text>
-          
           <View style={styles.balanceRow}>
             <View style={styles.balanceItem}>
               <View style={[styles.iconCircle, { backgroundColor: '#D1FAE5' }]}>
@@ -113,7 +112,7 @@ export default function AhorraAppScreen({ navigation }) {
           </View>
         </View>
 
-        {/* ACCESOS RÁPIDOS */}
+        {/* Accesos Rápidos */}
         <Text style={styles.sectionTitle}>Accesos Rápidos</Text>
         <View style={styles.quickAccessRow}>
           <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Transacciones')}>
@@ -122,14 +121,12 @@ export default function AhorraAppScreen({ navigation }) {
             </View>
             <Text style={styles.quickText}>Movimientos</Text>
           </TouchableOpacity>
-          
           <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Presupuestos')}>
             <View style={[styles.quickIcon, { backgroundColor: '#FEF3C7' }]}>
               <Ionicons name="pie-chart" size={24} color="#D97706" />
             </View>
             <Text style={styles.quickText}>Presupuestos</Text>
           </TouchableOpacity>
-          
           <TouchableOpacity style={styles.quickBtn} onPress={() => navigation.navigate('Gráficas')}>
             <View style={[styles.quickIcon, { backgroundColor: '#DCFCE7' }]}>
               <Ionicons name="stats-chart" size={24} color="#16A34A" />
@@ -138,7 +135,7 @@ export default function AhorraAppScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* SECCIÓN PRESUPUESTOS */}
+        {/* Estado Presupuestos con ESTILO DE ALERTA IGUAL A PRESUPUESTOS */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Estado de Presupuestos</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Presupuestos')}>
@@ -152,14 +149,31 @@ export default function AhorraAppScreen({ navigation }) {
           </View>
         ) : (
           budgets.slice(0, 2).map((b, i) => { 
-            const percent = Math.min(((b.monto_gastado || 0) / b.monto_limite) * 100, 100);
-            const barColor = percent >= 100 ? '#EF4444' : percent > 80 ? '#F59E0B' : '#10B981';
+            const spent = b.monto_gastado || 0;
+            const limit = b.monto_limite || 1;
+            const percent = Math.min((spent / limit) * 100, 100);
+            
+            // Lógica de Alerta
+            const isExceeded = spent >= limit;
+            const barColor = isExceeded ? '#EF4444' : percent > 80 ? '#F59E0B' : '#10B981';
+            
             return (
-              <TouchableOpacity key={i} style={styles.budgetCard} onPress={() => navigation.navigate('Presupuestos')}>
+              <TouchableOpacity 
+                key={i} 
+                style={[styles.budgetCard, isExceeded && styles.cardExceeded]} // APLICA ESTILO DE ALERTA
+                onPress={() => navigation.navigate('Presupuestos')}
+              >
                 <View style={styles.budgetHeaderRow}>
                   <View style={styles.budgetTitleContainer}>
                     <View style={[styles.dot, {backgroundColor: barColor}]} />
                     <Text style={styles.budgetCategory}>{b.categoria}</Text>
+                    {/* ETIQUETA DE ALERTA */}
+                    {isExceeded && (
+                      <View style={styles.alertBadge}>
+                        <AlertTriangle size={12} color="#FFF" />
+                        <Text style={styles.alertText}>AGOTADO</Text>
+                      </View>
+                    )}
                   </View>
                   <Text style={[styles.budgetPercent, {color: barColor}]}>{percent.toFixed(0)}%</Text>
                 </View>
@@ -169,15 +183,17 @@ export default function AhorraAppScreen({ navigation }) {
                 </View>
                 
                 <View style={styles.budgetFooter}>
-                  <Text style={styles.budgetDetails}>Gastado: {formatMoney(b.monto_gastado || 0)}</Text>
-                  <Text style={styles.budgetDetails}>Límite: {formatMoney(b.monto_limite)}</Text>
+                  <Text style={styles.budgetDetails}>Gastado: {formatMoney(spent)}</Text>
+                  <Text style={[styles.budgetDetails, isExceeded && {color:'#EF4444', fontWeight:'bold'}]}>
+                    {isExceeded ? '¡Límite alcanzado!' : `Límite: ${formatMoney(limit)}`}
+                  </Text>
                 </View>
               </TouchableOpacity>
             );
           })
         )}
 
-        {/* TRANSACCIONES RECIENTES */}
+        {/* Recientes */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recientes</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Transacciones')}>
@@ -247,16 +263,26 @@ const styles = StyleSheet.create({
   quickText: { fontSize: 12, fontWeight: '600', color: '#374151' },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, marginTop: 8 },
   seeAll: { color: '#0D7A43', fontWeight: '600', fontSize: 14 },
-  budgetCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.03, elevation: 2 },
+  
+  // ESTILOS DE PRESUPUESTO ACTUALIZADOS
+  budgetCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.03, elevation: 2, borderWidth: 1, borderColor: 'transparent' },
+  cardExceeded: { borderColor: '#EF4444', backgroundColor: '#FFF5F5' }, // Fondo rojo suave
+  
   budgetHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   budgetTitleContainer: { flexDirection: 'row', alignItems: 'center' },
   dot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
   budgetCategory: { fontWeight: '700', color: '#374151', fontSize: 15 },
+  
+  // ESTILO BADGE DE ALERTA
+  alertBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#EF4444', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginLeft: 8 },
+  alertText: { color: '#FFF', fontSize: 10, fontWeight: 'bold', marginLeft: 3 },
+
   budgetPercent: { fontWeight: '700', fontSize: 14 },
   progressBarBg: { height: 8, backgroundColor: '#F3F4F6', borderRadius: 4, marginBottom: 8, overflow: 'hidden' },
   progressBarFill: { height: '100%', borderRadius: 4 },
   budgetFooter: { flexDirection: 'row', justifyContent: 'space-between' },
   budgetDetails: { fontSize: 12, color: '#9CA3AF' },
+  
   transactionsContainer: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 5, shadowColor: '#000', shadowOpacity: 0.03, elevation: 2 },
   transactionRow: { flexDirection: 'row', alignItems: 'center', padding: 15, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
   transIconBg: { width: 42, height: 42, borderRadius: 21, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center', marginRight: 12 },

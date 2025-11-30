@@ -1,5 +1,4 @@
 import { db } from "../database/DatabaseConnection";
-import { TransaccionController } from "./TransaccionController"; // Reutilizamos lógica si es necesario
 
 export class PresupuestoController {
   
@@ -10,28 +9,38 @@ export class PresupuestoController {
     );
   }
 
-  // Lógica compleja: Obtener presupuestos Y calcular gasto real
+  // --- CORRECCIÓN AQUÍ: Comparación insensible a mayúsculas/minúsculas ---
   async obtenerConGasto(userId, mes, anio) {
-    // 1. Obtener presupuestos
     const presupuestos = await db.getAllAsync(
       "SELECT * FROM presupuestos WHERE user_id = ? AND mes = ? AND anio = ?;",
       [userId, mes, anio]
     );
 
-    
     const transacciones = await db.getAllAsync(
       "SELECT * FROM transacciones WHERE user_id = ?;",
       [userId]
     );
-
     
+    const mesBusqueda = mes.toLowerCase();
+    const anioBusqueda = anio.toString();
+
     return presupuestos.map(b => {
+
+      const catPresupuesto = b.categoria.trim().toLowerCase();
+
       const gastado = transacciones
-        .filter(t => 
-          (t.tipo === 'expense' || t.monto < 0) && 
-          t.categoria.toLowerCase() === b.categoria.toLowerCase() &&
-          t.fecha.includes(mes) && t.fecha.includes(anio)
-        )
+        .filter(t => {
+          const esGasto = t.tipo === 'expense' || t.monto < 0;
+          
+          // 1. Normalizar datos de la transacción
+          const catTransaccion = t.categoria.trim().toLowerCase();
+          const fechaTransaccion = t.fecha.toLowerCase();
+
+          const coincideCategoria = catTransaccion === catPresupuesto;
+          const coincideFecha = fechaTransaccion.includes(mesBusqueda) && fechaTransaccion.includes(anioBusqueda);
+
+          return esGasto && coincideCategoria && coincideFecha;
+        })
         .reduce((sum, t) => sum + Math.abs(t.monto), 0);
       
       return { ...b, monto_gastado: gastado };

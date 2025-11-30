@@ -12,13 +12,17 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // Importante para el icono del ojo
 import { UsuarioController } from "../controllers/UsuarioController";
 
 export default function CambiarContrasenaScreen({ route, navigation }) {
   const { email } = route.params || {}; 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  
+  // Estados para visibilidad de contraseña
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const usuarioController = new UsuarioController();
 
@@ -66,25 +70,37 @@ export default function CambiarContrasenaScreen({ route, navigation }) {
           </View>
 
           <View style={styles.form}>
+            {/* Campo Nueva Contraseña */}
             <Text style={styles.label}>Nueva Contraseña</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="••••••••"
-              placeholderTextColor="#A0A0A0"
-              secureTextEntry
-              value={newPassword}
-              onChangeText={setNewPassword}
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="••••••••"
+                placeholderTextColor="#A0A0A0"
+                secureTextEntry={!showNew} // Controla si se ve o no
+                value={newPassword}
+                onChangeText={setNewPassword}
+              />
+              <TouchableOpacity onPress={() => setShowNew(!showNew)} style={styles.eyeIcon}>
+                <Ionicons name={showNew ? "eye-off" : "eye"} size={20} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
 
+            {/* Campo Confirmar Contraseña */}
             <Text style={styles.label}>Confirmar Contraseña</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="••••••••"
-              placeholderTextColor="#A0A0A0"
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="••••••••"
+                placeholderTextColor="#A0A0A0"
+                secureTextEntry={!showConfirm} // Controla si se ve o no
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+              />
+              <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeIcon}>
+                <Ionicons name={showConfirm ? "eye-off" : "eye"} size={20} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
 
             <TouchableOpacity
               style={styles.button}
@@ -124,16 +140,27 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 4,
   },
-  input: {
+  
+  // Estilo actualizado para el contenedor del password
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    marginBottom: 20,
+  },
+  passwordInput: {
+    flex: 1,
     padding: 16,
     fontSize: 16,
     color: "#1F2937",
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
   },
+  eyeIcon: {
+    padding: 16,
+  },
+
   button: {
     backgroundColor: "#0D7A43",
     borderRadius: 12,
