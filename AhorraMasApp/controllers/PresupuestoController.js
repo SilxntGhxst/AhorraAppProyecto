@@ -48,4 +48,11 @@ export class PresupuestoController {
   async eliminar(id) {
     return await db.runAsync("DELETE FROM presupuestos WHERE id = ?;", [id]);
   }
+
+  async obtenerTodos(userId) {
+    return await db.getAllAsync(
+      "SELECT * FROM presupuestos WHERE user_id = ?;",
+      [userId]
+    );
+  }
 }

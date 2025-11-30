@@ -8,26 +8,16 @@ import { Ionicons } from '@expo/vector-icons';
 import IniciarSesionScreen from '../screens/IniciarSesionScreen';
 import RegistrarScreen from '../screens/RegistrarScreen';
 import RecuperarContrasenaScreen from '../screens/RecuperarContrasenaScreen';
-import CambiarContrasenaScreen from '../screens/CambiarContrasenaScreen'; // NUEVO IMPORT
+import CambiarContrasenaScreen from '../screens/CambiarContrasenaScreen';
 
 import AhorraAppScreen from '../screens/InicioScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
 import PresupuestosMensuales from '../screens/PresupuestosMensuales';
 import GraficasEstadisticasScreen from '../screens/GraficasEstadisticasScreen';
 import PerfilScreen from '../screens/PerfilScreen';
-import EditarPerfilScreens from '../screens/EditarPerfilScreens';
-
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-function PerfilStack() {
-    return (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="PerfilMain" component={PerfilScreen} />
-            <Stack.Screen name="EditarPerfil" component={EditarPerfilScreens} />
-        </Stack.Navigator>
-    );
-}
 
 function AuthStack() {
   return (
@@ -35,7 +25,6 @@ function AuthStack() {
       <Stack.Screen name="Login" component={IniciarSesionScreen} />
       <Stack.Screen name="Registro" component={RegistrarScreen} />
       <Stack.Screen name="RecuperarContrasena" component={RecuperarContrasenaScreen} />
-      {/* AGREGAMOS LA NUEVA PANTALLA AL STACK */}
       <Stack.Screen name="CambiarContrasena" component={CambiarContrasenaScreen} />
     </Stack.Navigator>
   );
@@ -72,7 +61,7 @@ function MainTabNavigator() {
             <Tab.Screen name="Transacciones" component={TransactionsScreen} options={{ title: 'Transacciones', tabBarIcon: ({ color, size }) => ( <Ionicons name="swap-horizontal-outline" color={color} size={24} /> ), }} />
             <Tab.Screen name="Presupuestos" component={PresupuestosMensuales} options={{ title: 'Presupuestos', tabBarIcon: ({ color, size }) => ( <Ionicons name="wallet-outline" color={color} size={24} /> ), }} />
             <Tab.Screen name="Gráficas" component={GraficasEstadisticasScreen} options={{ title: 'Gráficas', tabBarIcon: ({ color, size }) => ( <Ionicons name="bar-chart-outline" color={color} size={24} /> ), }} />
-            <Tab.Screen name="Perfil" component={PerfilStack} options={{ title: 'Perfil', tabBarIcon: ({ color, size }) => ( <Ionicons name="person-circle-outline" color={color} size={24} /> ), }} />
+            <Tab.Screen name="Perfil" component={PerfilScreen} options={{ title: 'Perfil', tabBarIcon: ({ color, size }) => ( <Ionicons name="person-circle-outline" color={color} size={24} /> ), }} />
         </Tab.Navigator>
     );
 }

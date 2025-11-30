@@ -33,4 +33,15 @@ export class UsuarioController {
       [newPassword, email]
     );
   }
+
+  async obtenerPorId(id) {
+    return await db.getFirstAsync("SELECT * FROM usuarios WHERE id = ?;", [id]);
+  }
+
+  async actualizarDatos(id, nombre, telefono) {
+    return await db.runAsync(
+      "UPDATE usuarios SET nombre = ?, telefono = ? WHERE id = ?;",
+      [nombre, telefono, id]
+    );
+  }
 }
